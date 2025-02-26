@@ -1,7 +1,7 @@
 import React, { useState } from "react";
-import { Modal, Form, Input, Button, message, Flex, Space } from "antd";
-import axios from "axios";
+import { Modal, Form, Input, Button, message, Flex } from "antd";
 import SignupModal from "./SignupModal"; // 회원가입 모달 import
+import { useAuth } from "../hooks/useAuth";
 
 interface LoginModalProps {
   open: boolean;
@@ -18,16 +18,21 @@ const LoginModal: React.FC<LoginModalProps> = ({
   const [form] = Form.useForm();
   const [isSignupOpen, setIsSignupOpen] = useState(false); // 회원가입 모달 상태
 
+  const { user, login } = useAuth();
+
   const handleLogin = async (values: { email: string; password: string }) => {
     setLoading(true);
     try {
-      const response = await axios.post(
-        "http://localhost:5000/api/login",
-        values
-      );
-      message.success("로그인 성공!");
-      onSuccess(response.data.token);
-      onClose();
+      await login(values.email, values.password);
+
+      if (!_.isNil(user)) {
+        //TODO: 메시지
+        message.success("로그인 성공!");
+        onSuccess(user.user.token);
+        onClose();
+      } else {
+        message.error(`로그인 실패. 이메일 또는 비밀번호를 확인하세요.`);
+      }
     } catch (error) {
       message.error(
         `로그인 실패. 이메일 또는 비밀번호를 확인하세요. (${error})`
