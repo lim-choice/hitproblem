@@ -1,5 +1,13 @@
 const mysql = require("mysql2/promise");
-const { DB_HOST, DB_USER, DB_PASS, DB_NAME, DB_PORT } = require("../config/dotenvConfig");
+const {
+  DB_HOST,
+  DB_USER,
+  DB_PASS,
+  DB_NAME,
+  DB_PORT,
+} = require("../config/dotenvConfig");
+
+const tableName = "users";
 
 const pool = mysql.createPool({
   host: DB_HOST,
@@ -13,8 +21,24 @@ const pool = mysql.createPool({
 });
 
 const getUserByEmail = async (email) => {
-  const [rows] = await pool.execute("SELECT * FROM users WHERE email = ?", [email]);
+  const [rows] = await pool.execute("SELECT * FROM users WHERE email = ?", [
+    email,
+  ]);
   return rows[0];
 };
 
-module.exports = { getUserByEmail };
+const setNewUser = async (email, password, nick) => {
+  try {
+    await pool.execute(
+      "INSERT INTO users (email, password, nick) VALUES (?, ?, ?)",
+      [email, password, nick]
+    );
+  } catch (ex) {
+    console.log(ex);
+    return false;
+  }
+
+  return true;
+};
+
+module.exports = { getUserByEmail, setNewUser };

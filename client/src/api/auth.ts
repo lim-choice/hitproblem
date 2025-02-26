@@ -14,6 +14,7 @@ export const loginUser = async (
   const apiUrl = "/auth/login";
   console.log(`loginUser -- apiUrl: ${apiUrl}, data: `, data);
   const response = await api.post(apiUrl, data);
+  console.log(`loginUser res: `, response);
   return response.data;
 };
 
@@ -24,6 +25,7 @@ export const registerUser = async (
   const apiUrl = "/auth/register";
   console.log(`useRegister -- apiUrl: ${apiUrl}, data: `, data);
   const response = await api.post(apiUrl, data);
+  console.log(`registerUser res: `, response);
   return response.data;
 };
 
@@ -31,4 +33,11 @@ export const registerUser = async (
 export const logoutUser = async (): Promise<void> => {
   console.log(`logoutUser`);
   await api.post("/auth/logout");
+};
+
+// 로그인 상태 확인 API
+export const checkAuth = async (): Promise<ApiResponse<LoginResponse>> => {
+  console.log(`checkAuth`);
+  const response = await api.get("/auth/me");
+  return response.data;
 };

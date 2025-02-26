@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Modal, Form, Input, Button, message, Flex } from "antd";
 import SignupModal from "./SignupModal"; // 회원가입 모달 import
 import { useAuth } from "../hooks/useAuth";
@@ -17,26 +17,30 @@ const LoginModal: React.FC<LoginModalProps> = ({
   const [loading, setLoading] = useState(false);
   const [form] = Form.useForm();
   const [isSignupOpen, setIsSignupOpen] = useState(false); // 회원가입 모달 상태
-
   const { user, login } = useAuth();
+
+  // 모달이 열릴 때 입력 필드 초기화
+  useEffect(() => {
+    if (open) {
+      form.resetFields();
+    }
+  }, [open, form]);
 
   const handleLogin = async (values: { email: string; password: string }) => {
     setLoading(true);
     try {
-      await login(values.email, values.password);
+      const loggedInUser = await login(values.email, values.password); // ✅ 로그인한 유저 정보 직접 사용
 
-      if (!_.isNil(user)) {
-        //TODO: 메시지
+      if (loggedInUser) {
         message.success("로그인 성공!");
-        onSuccess(user.user.token);
+        onSuccess(loggedInUser.user.token); // ✅ user 대신 loggedInUser 사용
         onClose();
       } else {
-        message.error(`로그인 실패. 이메일 또는 비밀번호를 확인하세요.`);
+        message.error("로그인 실패. 이메일 또는 비밀번호를 확인하세요.");
       }
     } catch (error) {
-      message.error(
-        `로그인 실패. 이메일 또는 비밀번호를 확인하세요. (${error})`
-      );
+      console.log(error);
+      message.error(`로그인 실패. ${error?.response?.data?.message ?? error}`);
     } finally {
       setLoading(false);
     }
@@ -63,6 +67,7 @@ const LoginModal: React.FC<LoginModalProps> = ({
           >
             <Input.Password placeholder="비밀번호 입력" />
           </Form.Item>
+
           {/* 로그인 & 회원가입 버튼 한 줄 정렬 */}
           <Form.Item>
             <Flex justify="space-between">
@@ -77,38 +82,27 @@ const LoginModal: React.FC<LoginModalProps> = ({
               <Button
                 type="default"
                 onClick={() => setIsSignupOpen(true)}
-                style={{
-                  width: "48%",
-                  border: "1px solid #1890ff", // 테두리 색상 (Ant Design primary color)
-                  color: "#1890ff",
-                  backgroundColor: "white",
-                }}
+                style={{ width: "48%" }}
               >
                 회원가입
               </Button>
             </Flex>
           </Form.Item>
-          {/* 테스트 코드 */}
-          <>
-            <Form.Item>
-              <Button
-                type="default"
-                onClick={() => {
-                  message.success("로그인 성공!");
-                  onSuccess("test123123123");
-                  onClose();
-                }}
-                style={{
-                  width: "48%",
-                  border: "1px solid #1890ff", // 테두리 색상 (Ant Design primary color)
-                  color: "#1890ff",
-                  backgroundColor: "white",
-                }}
-              >
-                테스트 로그인
-              </Button>
-            </Form.Item>
-          </>
+
+          {/* 테스트 로그인 버튼 */}
+          <Form.Item>
+            <Button
+              type="dashed"
+              onClick={() => {
+                message.success("로그인 성공!");
+                onSuccess("test123123123");
+                onClose();
+              }}
+              block
+            >
+              테스트 로그인
+            </Button>
+          </Form.Item>
         </Form>
       </Modal>
 
