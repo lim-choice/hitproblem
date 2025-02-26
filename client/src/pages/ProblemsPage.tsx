@@ -198,7 +198,7 @@ export default function ProblemsPage() {
         console.error("문제 목록 불러오기 실패:", error);
       });
 
-    const token = localStorage.getItem("token");
+    const token = sessionStorage.getItem("token");
     if (_.isEmpty(token)) {
       setLoginVisible(true);
     }
@@ -222,7 +222,7 @@ export default function ProblemsPage() {
       <LoginModal
         open={isLoginVisible}
         onClose={() => {
-          const token = localStorage.getItem("token");
+          const token = sessionStorage.getItem("token");
           if (!_.isEmpty(token)) {
             setLoginVisible(false);
           } else {
@@ -231,7 +231,7 @@ export default function ProblemsPage() {
         }}
         onSuccess={(token: string) => {
           api.info(`로그인 성공! 토큰: ${token}`);
-          localStorage.setItem("token", token); // 토큰 저장
+          sessionStorage.setItem("token", token); // 토큰 저장
         }}
       />
       <Layout
