@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
-import QueryResultTable from "../components/queryResultTable";
+import QueryResultTable from "../components/QueryResultTable";
+import LoginModal from "../components/LoginModal";
 import {
   Alert,
   Layout,
@@ -36,6 +37,8 @@ const { Header, Footer, Content } = Layout;
 const { Text } = Typography;
 
 export default function ProblemsPage() {
+  const [isLoginVisible, setLoginVisible] = useState(false); // ✅ API에서 가져올 문제 목록
+
   const [serverError, setServerError] = useState(false);
   const [theme, setTheme] = useState<"light" | "dark">("light");
   const [drawerVisible, setDrawerVisible] = useState(false);
@@ -194,6 +197,11 @@ export default function ProblemsPage() {
         setServerError(true);
         console.error("문제 목록 불러오기 실패:", error);
       });
+
+    const token = localStorage.getItem("token");
+    if (_.isEmpty(token)) {
+      setLoginVisible(true);
+    }
   }, []);
 
   return (
@@ -211,6 +219,21 @@ export default function ProblemsPage() {
         />
       )}
       {contextHolder} {/* ✅ message 사용을 위한 context */}
+      <LoginModal
+        open={isLoginVisible}
+        onClose={() => {
+          const token = localStorage.getItem("token");
+          if (!_.isEmpty(token)) {
+            setLoginVisible(false);
+          } else {
+            api.warning(`로그인 한 사람만 이용 가능합니다.`);
+          }
+        }}
+        onSuccess={(token: string) => {
+          api.info(`로그인 성공! 토큰: ${token}`);
+          localStorage.setItem("token", token); // 토큰 저장
+        }}
+      />
       <Layout
         style={{
           width: "100vw",
