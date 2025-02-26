@@ -1,5 +1,0 @@
-# 환경 변수 파일 제외
-.env
-.env.local
-.env.production
-.env.development
