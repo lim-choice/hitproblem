@@ -1,10 +1,22 @@
-require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
-const { Pool } = require("pg");
+const bodyParser = require("body-parser");
+const authRoutes = require("./routes/authRoutes");
+const { PORT } = require("./config/dotenvConfig");
 
 const app = express();
 const PORT = 5000;
+
+app.use(cors());
+app.use(bodyParser.json());
+
+// API 라우트 등록
+app.use("/api", authRoutes);
+
+// 서버 실행
+app.listen(PORT, () => {
+  console.log(`🚀 서버 실행 중: http://localhost:${PORT}`);
+});
 
 // ✅ PostgreSQL 연결 풀
 const pool = new Pool({
