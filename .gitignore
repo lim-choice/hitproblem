@@ -4,8 +4,9 @@ client/.env
 client/.env.local
 client/.env.production
 client/.env.development
+client/node_modules
 server/.env
 server/.env.local
 server/.env.production
 server/.env.development
-client/node_modules
+server/node_modules
