@@ -39,6 +39,7 @@ import MonacoEditor, { OnMount } from "@monaco-editor/react";
 import type { editor } from "monaco-editor";
 import _ from "lodash";
 import { useAuthStore } from "../hooks/useAuthStore";
+import { useProblemStore } from "../hooks/useProblemStore";
 
 const { Header, Footer, Content } = Layout;
 const { Text } = Typography;
@@ -53,12 +54,19 @@ export default function ProblemsPage() {
     isLoginModalOpen,
   } = useAuthStore(); // ✅ Zustand 상태 사용
 
+  const {
+    problems,
+    selectedProblem,
+    setSelectedProblem,
+    fetchProblemsByTopic,
+    loading,
+    error,
+  } = useProblemStore();
+
   const [serverError, setServerError] = useState(false);
   const [theme, setTheme] = useState<"light" | "dark">("light");
   const [drawerVisible, setDrawerVisible] = useState(false);
-  const [problems, setProblems] = useState<Problem | null>(); // ✅ API에서 가져올 문제 목록
   const [currentIndex, setCurrentIndex] = useState<number>(0);
-  const [selectedProblem, setSelectedProblem] = useState<Problem | null>(null);
 
   const [isExecuting, setIsExecuting] = useState(false); // ✅ 실행 중 여부
   const [executionResult, setExecutionResult] = useState<
@@ -103,7 +111,7 @@ export default function ProblemsPage() {
     id: number;
     title: string;
     description: string;
-    difficulty: "쉬움" | "중간" | "어려움";
+    difficulty: "쉬움" | "중간" | "어려움" | "Easy" | "Medium" | "Hard";
   };
 
   const handleEditorMount: OnMount = (editor, monaco) => {
@@ -126,11 +134,11 @@ export default function ProblemsPage() {
   const handleSubmit = () => {};
 
   const handlePrevProblem = () => {
-    if (!problems || problems.length === 0 || !selectedProblem) return;
+    if (!problems.length || !selectedProblem) return;
 
     const currentIndex = problems.findIndex((p) => p.id === selectedProblem.id);
     if (currentIndex > 0) {
-      setSelectedProblem(problems[currentIndex - 1]);
+      setSelectedProblem(problems[currentIndex - 1]); // ✅ Zustand 상태 업데이트
       setCurrentIndex(currentIndex - 1);
     } else {
       api.warning("이전 문제가 없습니다.");
@@ -138,11 +146,11 @@ export default function ProblemsPage() {
   };
 
   const handleNextProblem = () => {
-    if (!problems || problems.length === 0 || !selectedProblem) return;
+    if (!problems.length || !selectedProblem) return;
 
     const currentIndex = problems.findIndex((p) => p.id === selectedProblem.id);
     if (currentIndex < problems.length - 1) {
-      setSelectedProblem(problems[currentIndex + 1]);
+      setSelectedProblem(problems[currentIndex + 1]); // ✅ Zustand 상태 업데이트
       setCurrentIndex(currentIndex + 1);
     } else {
       api.warning("다음 문제가 없습니다.");
@@ -205,11 +213,14 @@ export default function ProblemsPage() {
     }
   };
 
-  type DifficultyType = "쉬움" | "중간" | "어려움";
+  type DifficultyType = "쉬움" | "중간" | "어려움" | "Easy" | "Medium" | "Hard";
   const difficultyColors: Record<DifficultyType, string> = {
     쉬움: "green",
     중간: "orange",
     어려움: "red",
+    Easy: "green",
+    Medium: "orange",
+    Hard: "red",
   };
 
   // ✅ 다크모드 토글
@@ -222,28 +233,23 @@ export default function ProblemsPage() {
       setDrawerVisible(false);
       setExecutionResult(null);
       setExecutionColor("#ccc");
-      console.log(`useEffect: selectedProblem - ${selectedProblem}`);
+      //console.log(`useEffect: selectedProblem`, selectedProblem);
     }
   }, [selectedProblem]);
 
   // ✅ API에서 문제 목록 가져오기 (첫 로딩 시 실행)
   useEffect(() => {
-    fetch("http://localhost:5000/api/problems")
-      .then((res) => res.json())
-      .then((data) => {
-        setProblems(data);
-        if (data.length > 0) {
-          setSelectedProblem(data[0]); // 첫 번째 문제를 기본 선택
-        }
-      })
-      .catch((error) => {
-        setServerError(true);
-        console.error("문제 목록 불러오기 실패:", error);
-      });
+    //페이지 로드 시 기본적으로 "SQL" 토픽 문제 불러오기
+    fetchProblemsByTopic("SQL");
 
     //페이지 새로고침 시 로그인 상태 확인
     verifyLogin().then(() => checkLoginModal());
   }, []);
+
+  // ✅ 토픽 변경 시 문제 목록 다시 불러오기
+  const handleTopicChange = (topic: string) => {
+    fetchProblemsByTopic(topic);
+  };
 
   return (
     <ConfigProvider
@@ -364,6 +370,17 @@ export default function ProblemsPage() {
               gap: "8px",
             }}
           >
+            {/* ✅ 토픽 선택 Select 추가 */}
+            {/* <Select
+              defaultValue="SQL"
+              style={{ width: 150 }}
+              onChange={(topic) => fetchProblemsByTopic(topic)}
+            >
+              <Option value="SQL">SQL</Option>
+              <Option value="알고리즘">알고리즘</Option>
+              <Option value="자료구조">자료구조</Option>
+            </Select> */}
+
             <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
               <MenuOutlined onClick={() => setDrawerVisible(true)} />
               <BookOutlined
@@ -378,18 +395,19 @@ export default function ProblemsPage() {
                   : "문제 제목"}
               </span>
             </div>
+
             {/* ⬅️ 이전 문제 | 다음 문제 ➡️ 버튼 */}
             <div style={{ display: "flex", gap: "8px" }}>
               <Button
                 type="default"
                 icon={<LeftOutlined />}
                 onClick={handlePrevProblem} // ✅ 이전 문제로 이동
+                disabled={currentIndex === 0} // ✅ 첫 번째 문제에서 비활성화
               >
                 이전 문제
               </Button>
               <Button type="default" onClick={handleNextProblem}>
                 다음 문제 <RightOutlined style={{ marginLeft: 4 }} />
-                {/* ✅ 아이콘이 버튼 내부에 위치 */}
               </Button>
               <Button
                 type="primary"
@@ -400,6 +418,7 @@ export default function ProblemsPage() {
               </Button>
             </div>
           </div>
+
           <Splitter
             style={{ boxShadow: "0 0 10px rgba(0, 0, 0, 0.1)", height: "100%" }}
           >
@@ -452,7 +471,7 @@ export default function ProblemsPage() {
                   },
                 }}
               >
-                {selectedProblem ? selectedProblem.description : "문제 설명"}
+                {selectedProblem ? selectedProblem.content : "문제 설명"}
               </Card>
             </Splitter.Panel>
 

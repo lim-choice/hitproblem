@@ -1,4 +1,4 @@
-const { getAllProblems, getProblemById } = require("../models/problemModel");
+const { getAllProblems, getProblemByTopic } = require("../models/problemModel");
 
 // 전체 문제 목록 가져오기
 const fetchAllProblems = async (req, res) => {
