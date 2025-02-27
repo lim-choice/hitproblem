@@ -44,6 +44,8 @@ import { useProblemStore } from "../hooks/useProblemStore";
 const { Header, Footer, Content } = Layout;
 const { Text } = Typography;
 
+// 😢 리팩토링은 언제 하냐 으악!! 인터페이스가 너무 많아 !!!
+
 export default function ProblemsPage() {
   const {
     user,

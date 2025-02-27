@@ -4,6 +4,7 @@ const cookieParser = require("cookie-parser");
 const bodyParser = require("body-parser");
 const authRoutes = require("./routes/authRoutes");
 const problemRoutes = require("./routes/problemRoutes");
+const executionRoutes = require("./routes/executionRoutes");
 const { PORT } = require("./config/dotenvConfig");
 
 const app = express();
@@ -21,6 +22,7 @@ app.use(cors({
 // API 라우트 등록
 app.use("/api/auth/", authRoutes);
 app.use("/api/problem/", problemRoutes);
+app.use("/api/execute/", executionRoutes);
 
 // 서버 실행
 app.listen(PORT, () => {
