@@ -40,6 +40,7 @@ import type { editor } from "monaco-editor";
 import _ from "lodash";
 import { useAuthStore } from "../hooks/useAuthStore";
 import { useProblemStore } from "../hooks/useProblemStore";
+import { executeUserQuery } from "../api/executionApi";
 
 const { Header, Footer, Content } = Layout;
 const { Text } = Typography;
@@ -161,57 +162,49 @@ export default function ProblemsPage() {
 
   // ✅ 코드 실행 함수
   const executeSQL = async () => {
-    console.log("executeSQL!");
-
     if (!selectedProblem) {
       api.warning("문제를 먼저 선택하세요.");
       return;
     }
 
-    const code = editorRef.current ? editorRef.current.getValue() : ""; // Monaco Editor에서 코드 가져오기
-    console.log(`code: ${code}`);
+    const code = editorRef.current ? editorRef.current.getValue() : "";
     if (!code.trim()) {
       api.warning("SQL 코드를 입력하세요.");
       return;
     }
 
-    setIsExecuting(true); // ✅ 로딩 시작
+    setIsExecuting(true);
     setExecutionResult(null);
-    setExecutionColor("#ccc"); // 기본 색상
+    setExecutionColor("#ccc"); // 기본 상태
 
     try {
-      const response = await fetch("http://localhost:5000/api/submit", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          problemId: selectedProblem.id,
-          userQuery: code,
-        }),
-      });
+      // ✅ API 요청
+      const response = await executeUserQuery(
+        selectedProblem.id,
+        "mysql",
+        code
+      );
 
-      if (!response.ok) {
-        throw new Error(
-          `서버 오류 (${response.status}): ${response.statusText}`
-        );
-      }
-
-      const data = await response.json();
-      if (data.isCorrect) {
-        setExecutionColor("green"); // ✅ 정답이면 초록색
+      if (response.isCorrect) {
+        setExecutionColor("green");
         api.success("정답입니다! 🎉");
       } else {
-        setExecutionColor("red"); // ❌ 오답이면 빨간색
-        setExecutionResult(data);
+        setExecutionColor("red");
         api.error("오답입니다. 다시 시도하세요.");
       }
-      setExecutionResult(data.message);
+
+      setExecutionResult(response.userResult); // ✅ 결과 출력
     } catch (error) {
-      console.log(error);
+      console.error("[executeSQL] SQL 실행 오류:", error);
       setExecutionColor("red");
-      setExecutionResult(`SQL 실행 중 오류가 발생했습니다. (${error})`);
-      api.error(`SQL 실행 중 오류가 발생했습니다. (${error})`);
+      setExecutionResult(
+        `SQL 실행 중 오류 발생: ${
+          error.response?.data?.message ?? error.message
+        }`
+      );
+      api.error(`SQL 실행 중 오류 발생: ${error.message}`);
     } finally {
-      setIsExecuting(false); // ✅ 로딩 종료
+      setIsExecuting(false);
     }
   };
 

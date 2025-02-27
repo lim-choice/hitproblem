@@ -1,4 +1,5 @@
 const pool = require("../config/db");
+const translateSQLError = require("../utils/errorTranslator");
 const { getProblemById } = require("../models/problemModel");
 
 // SQL 실행 및 정답 비교
@@ -14,6 +15,8 @@ const executeMYSQL = async (req, res) => {
     if (!problem) {
       return res.status(404).json({ status: "error", message: "문제를 찾을 수 없습니다." });
     }
+
+    console.log("userQuery >>> ", userQuery);
 
     // 정답 SQL 실행
     const [correctResult] = await pool.query(problem.answer);
@@ -32,7 +35,8 @@ const executeMYSQL = async (req, res) => {
       message: isCorrect ? "정답입니다! 🎉" : "오답입니다. 다시 시도하세요.",
     });
   } catch (error) {
-    res.status(500).json({ status: "error", message: "SQL 실행 중 오류 발생", error: error.message });
+    console.log("executeMYSQL error >>> ", error);
+    res.status(500).json({ status: "error", message: translateSQLError(error) });
   }
 };
 
