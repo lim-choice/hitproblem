@@ -10,19 +10,25 @@ interface AuthState {
   isLoginModalOpen: boolean;
   openLoginModal: () => void;
   closeLoginModal: () => void;
+  checkLoginModal: () => void;
 }
 
 // ✅ Zustand 전역 상태 저장소
-export const useAuthStore = create<AuthState>((set) => ({
+export const useAuthStore = create<AuthState>((set, get) => ({
   user: null,
   isLoginModalOpen: false, // 로그인 모달 상태 추가
   openLoginModal: () => set({ isLoginModalOpen: true }),
   closeLoginModal: () => set({ isLoginModalOpen: false }),
+  checkLoginModal: () => {
+    const { user } = get();
+    set({ isLoginModalOpen: !user });
+  },
 
   verifyLogin: async () => {
     try {
       const response = await checkAuth();
       set({ user: response.data.user, isLoginModalOpen: false });
+      console.log("ㅇㅇㅇ >> ");
     } catch (error) {
       console.log(error);
       set({ user: null, isLoginModalOpen: true });

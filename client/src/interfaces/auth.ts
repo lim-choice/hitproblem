@@ -10,6 +10,11 @@ export interface LoginResponse {
   user: User;
 }
 
+export interface LoginCheckResponse {
+  message: string;
+  token: string;
+}
+
 export interface RegisterRequest {
   user: User;
   password: string;

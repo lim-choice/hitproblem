@@ -44,8 +44,14 @@ const { Header, Footer, Content } = Layout;
 const { Text } = Typography;
 
 export default function ProblemsPage() {
-  const { user, verifyLogin, openLoginModal, logout, isLoginModalOpen } =
-    useAuthStore(); // ✅ Zustand 상태 사용
+  const {
+    user,
+    verifyLogin,
+    checkLoginModal,
+    openLoginModal,
+    logout,
+    isLoginModalOpen,
+  } = useAuthStore(); // ✅ Zustand 상태 사용
 
   const [serverError, setServerError] = useState(false);
   const [theme, setTheme] = useState<"light" | "dark">("light");
@@ -66,24 +72,23 @@ export default function ProblemsPage() {
 
   // ✅ 로그인 성공 후 유저 정보 갱신
   const handleLoginSuccess = async () => {
-    message.success("로그인 성공!");
     await verifyLogin(); // ✅ 로그인 성공 후 유저 정보 갱신
   };
 
   // ✅ 로그아웃 처리
   const handleLogout = async () => {
     await logout();
-    message.success("로그아웃 되었습니다.");
   };
 
   // ✅ 프로필 드롭다운 메뉴
-  const menu = (
-    <Menu>
-      <Menu.Item key="logout" icon={<LogoutOutlined />} onClick={handleLogout}>
-        로그아웃
-      </Menu.Item>
-    </Menu>
-  );
+  const menuItems = [
+    {
+      key: "logout",
+      icon: <LogoutOutlined />,
+      label: "로그아웃",
+      onClick: handleLogout,
+    },
+  ];
 
   type Problem = {
     id: number;
@@ -228,7 +233,7 @@ export default function ProblemsPage() {
       });
 
     //페이지 새로고침 시 로그인 상태 확인
-    verifyLogin();
+    verifyLogin().then(() => checkLoginModal());
   }, []);
 
   return (
@@ -304,7 +309,13 @@ export default function ProblemsPage() {
             />
             {/* ✅ 로그인 상태에 따라 프로필 아이콘 */}
             {user ? (
-              <Dropdown overlay={menu} trigger={["click"]}>
+              <Dropdown
+                menu={{ items: menuItems }} // ✅ `menu={{ items }}`로 변경
+                trigger={["click"]}
+                getPopupContainer={(triggerNode) =>
+                  triggerNode.parentElement || document.body
+                } // ✅ `findDOMNode` 경고 해결
+              >
                 <Avatar
                   size={40}
                   src={user?.profileImage || undefined} // 🔥 프로필 이미지 있으면 표시

@@ -27,20 +27,20 @@ const loginUser = async (req, res) => {
 
   res.json({
     status: "success",
-    message: "로그인 성공!",
+    message: `${user.nick}님 환영합니다.`,
     data: {
       token,
       user: {
         id: user.id,
         email: user.email,
-        nickname: user.nickname,
+        nick: user.nick,
       },
     },
   });
 };
 
 //로그인 상태확인 API
-const checkAuth = (req, res) => {
+const checkAuth = async (req, res) => {
   const token = req.cookies.token; // ✅ 쿠키에서 JWT 가져오기
 
   if (!token) {
@@ -48,10 +48,48 @@ const checkAuth = (req, res) => {
   }
 
   try {
-    const user = verifyToken(token);
-    res.json({ user });
+    const decoded = verifyToken(token); // ✅ 토큰 해독 (유저 정보 포함)
+    
+    // ✅ DB에서 유저 정보 조회
+    const user = await db.getUserById(decoded.id); 
+    if (!user) {
+      return res.status(404).json({ message: "유저 정보를 찾을 수 없습니다." });
+    }
+
+    // ✅ 유저 정보 반환
+    res.json({ 
+      status: "success",
+      data: {
+        token,
+        user: {
+          id: user.id,
+          email: user.email,
+          nick: user.nick,
+        }
+      }
+    });
   } catch (error) {
+    console.error("checkAuth error:", error);
     return res.status(403).json({ message: "토큰이 유효하지 않습니다." });
+  }
+};
+
+// 로그아웃 API (쿠키 삭제)
+const logoutUser = async (req, res) => {
+  try {
+    res.clearCookie("token", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "Strict",
+    });
+
+    res.json({
+      status: "success",
+      message: "로그아웃 되었습니다.",
+    });
+  } catch (error) {
+    console.error("[logoutUser] 오류 발생:", error);
+    res.status(500).json({ message: "서버 오류" });
   }
 };
 
@@ -87,4 +125,4 @@ const signUser = async (req, res) => {
   });
 };
 
-module.exports = { loginUser, checkAuth, signUser };
+module.exports = { loginUser, logoutUser, checkAuth, signUser };
