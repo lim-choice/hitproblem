@@ -18,7 +18,6 @@ const pool = mysql.createPool({
     connectionLimit: 10, // ✅ 최대 10개의 연결 유지
     queueLimit: 0,
     connectTimeout: 10000, // ✅ 10초 동안 연결을 시도 (MySQL 서버와 연결하는 시간)
-    acquireTimeoutMillis: 10000, // ✅ `acquireTimeout` 대신 올바른 옵션 사용
     multipleStatements: false, // ✅ SQL 인젝션 방지 (다중 쿼리 비활성화)
   });
 
