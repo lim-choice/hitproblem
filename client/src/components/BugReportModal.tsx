@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Modal, Form, Input, Upload, Button, message } from "antd";
 import { InboxOutlined } from "@ant-design/icons";
 import axios from "axios";
+import api from "../api/axiosInstance";
 
 interface BugReportModalProps {
   open: boolean;
@@ -14,6 +15,26 @@ const BugReportModal: React.FC<BugReportModalProps> = ({ open, onClose }) => {
 
   // ✅ API 호출 및 버그 신고 제출
   const handleSubmit = async () => {
+    try {
+      const values = await form.validateFields();
+      setLoading(true);
+
+      const response = await api.post(`/report/bug`, {
+        content: values.description,
+      });
+
+      message.success("버그 신고가 접수되었습니다.");
+      form.resetFields();
+      onClose();
+    } catch (error) {
+      console.error("버그 신고 오류:", error);
+      message.error("버그 신고 중 오류가 발생했습니다.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSubmit2 = async () => {
     try {
       const values = await form.validateFields();
       setLoading(true);
