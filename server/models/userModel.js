@@ -1,25 +1,4 @@
-const mysql = require("mysql2/promise");
-const {
-  DB_HOST,
-  DB_USER,
-  DB_PASS,
-  DB_NAME,
-  DB_PORT,
-} = require("../config/dotenvConfig");
-
-const tableName = "users";
-
-// ✅ 커넥션 풀 설정
-const pool = mysql.createPool({
-  host: DB_HOST,
-  user: DB_USER,
-  password: DB_PASS,
-  database: DB_NAME,
-  port: DB_PORT, // MySQL 포트 설정
-  waitForConnections: true,
-  connectionLimit: 10, // ✅ 최대 10개 연결 유지
-  queueLimit: 0,
-});
+const pool = require("../config/db");
 
 // 이메일로 유저 조회
 const getUserByEmail = async (email) => {
