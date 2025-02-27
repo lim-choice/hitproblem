@@ -80,4 +80,4 @@ CORS_ORIGIN=http://localhost:5173
 
 ---
 
-이 프로젝트에 대한 문의는 [이슈 트래커](https://github.com/your-repo/hitproblem/issues)를 이용해주세요.
+이 프로젝트에 대한 문의는 [이슈 트래커](https://github.com/lim-choice/hitproblem/issues)를 이용해주세요.
