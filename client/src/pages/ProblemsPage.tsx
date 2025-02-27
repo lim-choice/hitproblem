@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import QueryResultTable from "../components/QueryResultTable";
 import LoginModal from "../components/LoginModal";
+import BugReportModal from "../components/BugReportModal";
 import {
   Alert,
   Layout,
@@ -67,6 +68,8 @@ export default function ProblemsPage() {
   } = useProblemStore();
 
   const [serverError, setServerError] = useState(false);
+  const [isBugModalOpen, setIsBugModalOpen] = useState(false);
+
   const [theme, setTheme] = useState<"light" | "dark">("light");
   const [drawerVisible, setDrawerVisible] = useState(false);
   const [currentIndex, setCurrentIndex] = useState<number>(0);
@@ -119,19 +122,6 @@ export default function ProblemsPage() {
 
   const handleEditorMount: OnMount = (editor, monaco) => {
     editorRef.current = editor; // ✅ TypeScript에서 문제없이 작동
-  };
-
-  const handleChartProblem = async () => {
-    api.info("TODO..");
-
-    setExecutionResult([
-      { id: 1, name: "Alice", age: 25 },
-      { id: 2, name: "Bob", age: 30 },
-    ]);
-  };
-
-  const handleBugReport = async () => {
-    api.info("TODO..");
   };
 
   const handleSubmit = () => {};
@@ -614,18 +604,21 @@ export default function ProblemsPage() {
               type="text"
               icon={<PieChartOutlined />}
               style={{ marginRight: "8px" }}
-              onClick={handleChartProblem}
             >
               문제 통계
             </Button>
             <Button
               type="text"
               icon={<BugOutlined />}
-              onClick={handleBugReport}
+              onClick={() => setIsBugModalOpen(true)}
               danger
             >
               버그 신고
             </Button>
+            <BugReportModal
+              open={isBugModalOpen}
+              onClose={() => setIsBugModalOpen(false)}
+            />
           </div>
         </Footer>
       </Layout>
