@@ -31,13 +31,13 @@ export const registerUser = async (
 
 // 로그아웃 API
 export const logoutUser = async (): Promise<void> => {
-  console.log(`logoutUser`);
+  //console.log(`logoutUser`);
   await api.post("/auth/logout");
 };
 
 // 로그인 상태 확인 API
 export const checkAuth = async (): Promise<ApiResponse<LoginResponse>> => {
-  console.log(`checkAuth`);
+  //console.log(`checkAuth`);
   const response = await api.get("/auth/me");
   return response.data;
 };

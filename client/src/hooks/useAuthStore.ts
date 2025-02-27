@@ -28,7 +28,6 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     try {
       const response = await checkAuth();
       set({ user: response.data.user, isLoginModalOpen: false });
-      console.log("ㅇㅇㅇ >> ");
     } catch (error) {
       console.log(error);
       set({ user: null, isLoginModalOpen: true });

@@ -83,6 +83,15 @@ export default function ProblemsPage() {
   // ✅ 프로필 드롭다운 메뉴
   const menuItems = [
     {
+      key: "user-info",
+      label: (
+        <span style={{ fontWeight: "bold", color: "#333" }}>
+          {user?.nick} 님
+        </span>
+      ), // ✅ 닉네임 표시 (클릭 안 됨)
+      disabled: true, // 클릭 방지
+    },
+    {
       key: "logout",
       icon: <LogoutOutlined />,
       label: "로그아웃",
