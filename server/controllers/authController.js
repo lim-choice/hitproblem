@@ -1,5 +1,5 @@
 
-const { generateToken } = require("../config/jwtConfig");
+const { generateToken, verifyToken } = require("../config/jwtConfig");
 const db = require("../models/userModel"); // DB 연결
 
 const jwt = require("jsonwebtoken");

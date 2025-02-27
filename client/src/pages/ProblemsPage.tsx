@@ -15,6 +15,9 @@ import {
   List,
   Tag,
   message,
+  Menu,
+  Avatar,
+  Dropdown,
 } from "antd";
 import {
   BookOutlined,
@@ -28,16 +31,21 @@ import {
   LeftOutlined,
   RightOutlined,
   CheckOutlined,
+  LogoutOutlined,
+  UserOutlined,
 } from "@ant-design/icons";
+import { useAuth } from "../hooks/useAuth";
 import MonacoEditor, { OnMount } from "@monaco-editor/react";
 import type { editor } from "monaco-editor";
 import _ from "lodash";
+import { useAuthStore } from "../hooks/useAuthStore";
 
 const { Header, Footer, Content } = Layout;
 const { Text } = Typography;
 
 export default function ProblemsPage() {
-  const [isLoginVisible, setLoginVisible] = useState(false); // ✅ API에서 가져올 문제 목록
+  const { user, verifyLogin, openLoginModal, logout, isLoginModalOpen } =
+    useAuthStore(); // ✅ Zustand 상태 사용
 
   const [serverError, setServerError] = useState(false);
   const [theme, setTheme] = useState<"light" | "dark">("light");
@@ -55,6 +63,27 @@ export default function ProblemsPage() {
   const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null);
 
   const [api, contextHolder] = message.useMessage();
+
+  // ✅ 로그인 성공 후 유저 정보 갱신
+  const handleLoginSuccess = async () => {
+    message.success("로그인 성공!");
+    await verifyLogin(); // ✅ 로그인 성공 후 유저 정보 갱신
+  };
+
+  // ✅ 로그아웃 처리
+  const handleLogout = async () => {
+    await logout();
+    message.success("로그아웃 되었습니다.");
+  };
+
+  // ✅ 프로필 드롭다운 메뉴
+  const menu = (
+    <Menu>
+      <Menu.Item key="logout" icon={<LogoutOutlined />} onClick={handleLogout}>
+        로그아웃
+      </Menu.Item>
+    </Menu>
+  );
 
   type Problem = {
     id: number;
@@ -198,10 +227,8 @@ export default function ProblemsPage() {
         console.error("문제 목록 불러오기 실패:", error);
       });
 
-    const token = sessionStorage.getItem("token");
-    if (_.isEmpty(token)) {
-      setLoginVisible(true);
-    }
+    //페이지 새로고침 시 로그인 상태 확인
+    verifyLogin();
   }, []);
 
   return (
@@ -218,22 +245,13 @@ export default function ProblemsPage() {
           showIcon
         />
       )}
-      {contextHolder} {/* ✅ message 사용을 위한 context */}
+      {/* ✅ 로그인 모달 */}
       <LoginModal
-        open={isLoginVisible}
-        onClose={() => {
-          const token = sessionStorage.getItem("token");
-          if (!_.isEmpty(token)) {
-            setLoginVisible(false);
-          } else {
-            api.warning(`로그인 한 사람만 이용 가능합니다.`);
-          }
-        }}
-        onSuccess={(token: string) => {
-          api.info(`로그인 성공! 토큰: ${token}`);
-          sessionStorage.setItem("token", token); // 토큰 저장
-        }}
+        open={isLoginModalOpen}
+        onClose={openLoginModal}
+        onSuccess={handleLoginSuccess}
       />
+      {contextHolder} {/* ✅ message 사용을 위한 context */}
       <Layout
         style={{
           width: "100vw",
@@ -276,14 +294,32 @@ export default function ProblemsPage() {
               ]}
             />
           </div>
-
-          {/* ✅ 다크모드/라이트모드 스위치 */}
-          <Switch
-            checked={theme === "dark"}
-            onChange={toggleTheme}
-            checkedChildren={<MoonOutlined />}
-            unCheckedChildren={<SunOutlined />}
-          />
+          <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+            {/* ✅ 다크모드/라이트모드 스위치 */}
+            <Switch
+              checked={theme === "dark"}
+              onChange={toggleTheme}
+              checkedChildren={<MoonOutlined />}
+              unCheckedChildren={<SunOutlined />}
+            />
+            {/* ✅ 로그인 상태에 따라 프로필 아이콘 */}
+            {user ? (
+              <Dropdown overlay={menu} trigger={["click"]}>
+                <Avatar
+                  size={40}
+                  src={user?.profileImage || undefined} // 🔥 프로필 이미지 있으면 표시
+                  icon={!user.profileImage ? <UserOutlined /> : undefined} // 기본 아이콘
+                  style={{ cursor: "pointer", backgroundColor: "#1890ff" }}
+                />
+              </Dropdown>
+            ) : (
+              <Avatar
+                size={40}
+                icon={<UserOutlined />}
+                style={{ cursor: "pointer", backgroundColor: "#ccc" }}
+              />
+            )}
+          </div>
         </Header>
 
         <Content

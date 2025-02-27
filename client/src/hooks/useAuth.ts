@@ -9,6 +9,7 @@ export const useAuth = () => {
   const verifyLogin = async () => {
     try {
       const response = await checkAuth(); // ✅ 백엔드에서 로그인 상태 확인
+      console.log(response);
       setUser(response.data);
     } catch {
       setUser(null); // 로그인 안 되어 있으면 초기화
@@ -32,5 +33,5 @@ export const useAuth = () => {
     setUser(null);
   };
 
-  return { user, login, logout };
+  return { user, login, logout, verifyLogin };
 };

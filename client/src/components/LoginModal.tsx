@@ -1,46 +1,29 @@
 import React, { useEffect, useState } from "react";
 import { Modal, Form, Input, Button, message, Flex } from "antd";
 import SignupModal from "./SignupModal"; // 회원가입 모달 import
-import { useAuth } from "../hooks/useAuth";
+import { useAuthStore } from "../hooks/useAuthStore";
 
-interface LoginModalProps {
-  open: boolean;
-  onClose: () => void;
-  onSuccess: (token: string) => void;
-}
-
-const LoginModal: React.FC<LoginModalProps> = ({
-  open,
-  onClose,
-  onSuccess,
-}) => {
+const LoginModal: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [form] = Form.useForm();
+  const { user, login, isLoginModalOpen, closeLoginModal } = useAuthStore();
   const [isSignupOpen, setIsSignupOpen] = useState(false); // 회원가입 모달 상태
-  const { user, login } = useAuth();
 
   // 모달이 열릴 때 입력 필드 초기화
   useEffect(() => {
-    if (open) {
+    if (isLoginModalOpen) {
       form.resetFields();
     }
-  }, [open, form]);
+  }, [isLoginModalOpen, form]);
 
   const handleLogin = async (values: { email: string; password: string }) => {
     setLoading(true);
     try {
-      const loggedInUser = await login(values.email, values.password); // ✅ 로그인한 유저 정보 직접 사용
-
-      if (loggedInUser) {
-        message.success("로그인 성공!");
-        onSuccess(loggedInUser.user.token); // ✅ user 대신 loggedInUser 사용
-        onClose();
-      } else {
-        message.error("로그인 실패. 이메일 또는 비밀번호를 확인하세요.");
-      }
+      await login(values.email, values.password);
+      message.success("로그인 성공!");
+      closeLoginModal(); // ✅ Zustand 상태 업데이트로 모달 닫기
     } catch (error) {
-      console.log(error);
-      message.error(`로그인 실패. ${error?.response?.data?.message ?? error}`);
+      message.error("로그인 실패. 이메일 또는 비밀번호를 확인하세요.");
     } finally {
       setLoading(false);
     }
@@ -48,7 +31,12 @@ const LoginModal: React.FC<LoginModalProps> = ({
 
   return (
     <>
-      <Modal title="로그인" open={open} onCancel={onClose} footer={null}>
+      <Modal
+        title="로그인"
+        open={isLoginModalOpen}
+        onCancel={closeLoginModal}
+        footer={null}
+      >
         <Form form={form} layout="vertical" onFinish={handleLogin}>
           <Form.Item
             name="email"
@@ -68,7 +56,6 @@ const LoginModal: React.FC<LoginModalProps> = ({
             <Input.Password placeholder="비밀번호 입력" />
           </Form.Item>
 
-          {/* 로그인 & 회원가입 버튼 한 줄 정렬 */}
           <Form.Item>
             <Flex justify="space-between">
               <Button
@@ -87,21 +74,6 @@ const LoginModal: React.FC<LoginModalProps> = ({
                 회원가입
               </Button>
             </Flex>
-          </Form.Item>
-
-          {/* 테스트 로그인 버튼 */}
-          <Form.Item>
-            <Button
-              type="dashed"
-              onClick={() => {
-                message.success("로그인 성공!");
-                onSuccess("test123123123");
-                onClose();
-              }}
-              block
-            >
-              테스트 로그인
-            </Button>
           </Form.Item>
         </Form>
       </Modal>
