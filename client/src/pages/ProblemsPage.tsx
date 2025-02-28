@@ -42,6 +42,7 @@ import _ from "lodash";
 import { useAuthStore } from "../hooks/useAuthStore";
 import { useProblemStore } from "../hooks/useProblemStore";
 import { executeUserQuery } from "../api/executionApi";
+import MarkdownViewer from "../components/common/MarkdownViewer";
 
 const { Header, Footer, Content } = Layout;
 const { Text } = Typography;
@@ -447,7 +448,7 @@ export default function ProblemsPage() {
                   },
                 }}
               >
-                {selectedProblem ? selectedProblem.content : "문제 설명"}
+                <MarkdownViewer content={selectedProblem?.content ?? ""} />
               </Card>
             </Splitter.Panel>
 

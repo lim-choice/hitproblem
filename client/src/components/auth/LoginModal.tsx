@@ -6,7 +6,7 @@ import { useAuthStore } from "../../hooks/useAuthStore";
 const LoginModal: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [form] = Form.useForm();
-  const { user, login, isLoginModalOpen, checkLoginModal } = useAuthStore();
+  const { login, isLoginModalOpen, checkLoginModal } = useAuthStore();
   const [isSignupOpen, setIsSignupOpen] = useState(false); // 회원가입 모달 상태
 
   // 모달이 열릴 때 입력 필드 초기화
@@ -22,7 +22,7 @@ const LoginModal: React.FC = () => {
       await login(values.email, values.password);
       checkLoginModal(); // ✅ Zustand 상태 업데이트로 모달 닫기
     } catch (error) {
-      message.error("로그인 실패. 이메일 또는 비밀번호를 확인하세요.");
+      message.error(`로그인 실패. ${error?.response?.data?.message}`);
     } finally {
       setLoading(false);
     }
