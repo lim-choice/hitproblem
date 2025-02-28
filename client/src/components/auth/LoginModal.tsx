@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Modal, Form, Input, Button, message, Flex } from "antd";
 import SignupModal from "./SignupModal"; // 회원가입 모달 import
-import { useAuthStore } from "../hooks/useAuthStore";
+import { useAuthStore } from "../../hooks/useAuthStore";
 
 const LoginModal: React.FC = () => {
   const [loading, setLoading] = useState(false);

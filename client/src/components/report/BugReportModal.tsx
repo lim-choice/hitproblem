@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Modal, Form, Input, Upload, Button, message } from "antd";
 import { InboxOutlined } from "@ant-design/icons";
 import axios from "axios";
-import api from "../api/axiosInstance";
+import api from "../../api/axiosInstance";
 
 interface BugReportModalProps {
   open: boolean;

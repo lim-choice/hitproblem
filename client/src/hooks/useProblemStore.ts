@@ -38,7 +38,7 @@ export const useProblemStore = create<ProblemState>((set) => ({
         selectedProblem: problems.length > 0 ? problems[0] : null,
       });
     } catch (error) {
-      set({ error: "문제 목록을 불러오는 중 오류 발생" });
+      set({ error: `문제 목록을 불러오는 중 오류 발생 (${error})` });
     } finally {
       set({ loading: false });
     }
@@ -51,7 +51,7 @@ export const useProblemStore = create<ProblemState>((set) => ({
       const problem = await fetchProblemById(id);
       set({ selectedProblem: problem });
     } catch (error) {
-      set({ error: "문제를 불러오는 중 오류 발생" });
+      set({ error: `문제 목록을 불러오는 중 오류 발생 (${error})` });
     } finally {
       set({ loading: false });
     }

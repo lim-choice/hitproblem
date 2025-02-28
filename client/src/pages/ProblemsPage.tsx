@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
-import QueryResultTable from "../components/QueryResultTable";
-import LoginModal from "../components/LoginModal";
-import BugReportModal from "../components/BugReportModal";
+import QueryResultTable from "../components/problems/QueryResultTable";
+import LoginModal from "../components/auth/LoginModal";
+import BugReportModal from "../components/report/BugReportModal";
 import {
   Alert,
   Layout,
@@ -112,13 +112,6 @@ export default function ProblemsPage() {
       onClick: handleLogout,
     },
   ];
-
-  type Problem = {
-    id: number;
-    title: string;
-    description: string;
-    difficulty: "쉬움" | "중간" | "어려움" | "Easy" | "Medium" | "Hard";
-  };
 
   const handleEditorMount: OnMount = (editor, monaco) => {
     editorRef.current = editor; // ✅ TypeScript에서 문제없이 작동
@@ -396,6 +389,14 @@ export default function ProblemsPage() {
               </Button>
               <Button
                 type="primary"
+                icon={<PlayCircleOutlined />}
+                loading={isExecuting} // ✅ 실행 중이면 로딩 표시
+                onClick={executeSQL}
+              >
+                {isExecuting ? "실행 중..." : "코드 실행"}
+              </Button>
+              <Button
+                type="primary"
                 icon={<CheckOutlined />} // ✅ 체크 아이콘 추가
                 onClick={handleSubmit} // ✅ 제출 로직
               >
@@ -429,16 +430,6 @@ export default function ProblemsPage() {
                   ) : (
                     "문제 제목"
                   )
-                }
-                extra={
-                  <Button
-                    type="primary"
-                    icon={<PlayCircleOutlined />}
-                    loading={isExecuting} // ✅ 실행 중이면 로딩 표시
-                    onClick={executeSQL}
-                  >
-                    {isExecuting ? "실행 중..." : "코드 실행"}
-                  </Button>
                 }
                 style={{
                   height: "100%",

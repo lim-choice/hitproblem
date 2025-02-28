@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Modal, Form, Input, Button, message, Space } from "antd";
-import { useRegister } from "../hooks/useRegister";
-import { RegisterRequest } from "../interfaces/auth";
+import { useRegister } from "../../hooks/useRegister";
+import { RegisterRequest } from "../../interfaces/auth";
 
 interface SignupModalProps {
   open: boolean;
@@ -86,7 +86,8 @@ const SignupModal: React.FC<SignupModalProps> = ({ open, onClose }) => {
       onClose();
       form.resetFields();
     } catch (error) {
-      message.error("회원가입 실패. 다시 시도해주세요.");
+      console.log(error);
+      message.error(`회원가입 실패. (${error?.response?.data?.message})`);
     } finally {
       setLoading(false);
     }
