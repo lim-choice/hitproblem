@@ -13,3 +13,20 @@
   padding: 2px 4px;
   border-radius: 4px;
 }
+
+.markdown-container table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.markdown-container th,
+.markdown-container td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: left;
+}
+
+.markdown-container th {
+  background-color: #f4f4f4;
+  font-weight: bold;
+}
