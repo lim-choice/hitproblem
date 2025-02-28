@@ -41,6 +41,7 @@ import type { editor } from "monaco-editor";
 import _ from "lodash";
 import { useAuthStore } from "../hooks/useAuthStore";
 import { useProblemStore } from "../hooks/useProblemStore";
+import { jsonToMarkdown } from "../hooks/useMarkdown";
 import { executeUserQuery } from "../api/executionApi";
 import MarkdownViewer from "../components/common/MarkdownViewer";
 
@@ -176,8 +177,12 @@ export default function ProblemsPage() {
         setExecutionColor("red");
         api.error("오답입니다. 다시 시도하세요.");
       }
-
-      setExecutionResult(response.userResult); // ✅ 결과 출력
+      console.log("0 >> ", response);
+      console.log("1 >> ", response.userResult);
+      const resultContent = jsonToMarkdown(response.userResult);
+      console.log("2 >> ", resultContent);
+      setExecutionResult(resultContent);
+      //setExecutionResult(response.userResult); // ✅ 결과 출력
     } catch (error) {
       console.error("[executeSQL] SQL 실행 오류:", error);
       setExecutionColor("red");
@@ -491,12 +496,14 @@ export default function ProblemsPage() {
                   <Card
                     title="실행 결과"
                     style={{
-                      height: "100%",
-                      display: "flex",
-                      flexDirection: "column",
+                      height: "100%", // ✅ 부모 높이 유지
                       background: theme === "dark" ? "#222" : "#fff",
                       color: theme === "dark" ? "#ddd" : "#000",
-                      border: `1px solid ${executionColor}`, // ✅ 실행 결과에 따라 색상 변경
+                      border: `2px solid ${executionColor}`, // ✅ 테두리 유지
+                      position: "relative",
+                      overflow: "hidden", // ✅ 내부에서만 스크롤 발생
+                      display: "flex", // ✅ 내부 요소가 넘칠 때 레이아웃 유지
+                      flexDirection: "column", // ✅ 세로 방향 배치 유지
                     }}
                     styles={{
                       header: {
@@ -507,22 +514,34 @@ export default function ProblemsPage() {
                       },
                     }}
                   >
-                    {isExecuting ? (
-                      <div style={{ textAlign: "center", color: "#aaa" }}>
-                        ⏳ 실행 중...
-                      </div>
-                    ) : (
-                      <div style={{ color: executionColor }}>
-                        {Array.isArray(executionResult) ? (
-                          <QueryResultTable data={executionResult} />
-                        ) : (
-                          <div>
-                            {executionResult ||
-                              "SQL 실행 결과가 여기에 표시됩니다."}
-                          </div>
-                        )}
-                      </div>
-                    )}
+                    {/* ✅ 실행 결과 내용이 길어지면 내부에서만 스크롤 */}
+                    <div
+                      style={{
+                        flexGrow: 1, // ✅ 내부 콘텐츠가 많아도 Card 크기를 유지
+                        overflowY: "scroll", // ✅ 세로 스크롤 항상 표시
+                        overflowX: "auto", // ✅ 가로 스크롤 필요 시 표시
+                        maxHeight: "65%", // ✅ 부모 Card 크기 초과 방지
+                        minHeight: "0px", // ✅ flex 레이아웃 문제 해결
+                      }}
+                    >
+                      {isExecuting ? (
+                        <div style={{ textAlign: "center", color: "#aaa" }}>
+                          ⏳ 실행 중...
+                        </div>
+                      ) : (
+                        <div
+                          style={{
+                            color: executionColor,
+                            overflowX: "auto", // ✅ 가로 스크롤 강제 활성화 (긴 표 대비)
+                            whiteSpace: "nowrap", // ✅ 긴 표 자동 줄바꿈 방지
+                            maxHeight: "100%", // ✅ 내용이 많아도 부모 높이 초과 방지
+                            display: "block", // ✅ 테이블이 부모 크기를 초과할 때 정상적으로 스크롤 가능하도록 수정
+                          }}
+                        >
+                          <MarkdownViewer content={executionResult ?? ""} />
+                        </div>
+                      )}
+                    </div>
                   </Card>
                 </Splitter.Panel>
               </Splitter>
@@ -577,20 +596,6 @@ export default function ProblemsPage() {
             color: theme === "dark" ? "#ccc" : "#000",
           }}
         >
-          {/* <div>
-            <Button
-              type="default"
-              icon={<MenuOutlined />}
-              style={{
-                position: "absolute",
-                bottom: "10px",
-                left: "10px",
-              }}
-              onClick={() => setDrawerVisible(true)}
-            >
-              문제 목록
-            </Button>
-          </div> */}
           <div>
             <Button
               type="text"
