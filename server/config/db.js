@@ -33,6 +33,17 @@ const checkDBConnection = async () => {
   }
 };
 
+setInterval(async () => {
+  try {
+    const connection = await pool.getConnection();
+    await connection.query("SELECT 1"); // ✅ 연결 유지용 쿼리 실행
+    connection.release();
+    console.log("✅ MySQL Keep-Alive 실행");
+  } catch (error) {
+    console.error("⚠️ MySQL Keep-Alive 오류:", error);
+  }
+}, 60000); // ✅ 60초마다 실행
+
 checkDBConnection(); // 서버 시작 시 DB 연결 확인
 
 module.exports = pool;
