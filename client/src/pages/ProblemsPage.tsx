@@ -68,6 +68,9 @@ export default function ProblemsPage() {
     fetchProblemsByTopic,
     loading,
     error,
+    userCode,
+    executionResult,
+    setExecutionResult,
   } = useProblemStore();
 
   const [serverError, setServerError] = useState(false);
@@ -78,12 +81,7 @@ export default function ProblemsPage() {
   const [currentIndex, setCurrentIndex] = useState<number>(0);
 
   const [isExecuting, setIsExecuting] = useState(false); // ✅ 실행 중 여부
-  const [executionResult, setExecutionResult] = useState<
-    object | string | null
-  >(null); // ✅ 실행 결과
   const [executionColor, setExecutionColor] = useState("#ccc"); // ✅ 실행 결과 색상
-
-  const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null);
 
   const [api, contextHolder] = message.useMessage();
 
@@ -115,10 +113,6 @@ export default function ProblemsPage() {
       onClick: handleLogout,
     },
   ];
-
-  const handleEditorMount: OnMount = (editor, monaco) => {
-    editorRef.current = editor; // ✅ TypeScript에서 문제없이 작동
-  };
 
   const handleSubmit = () => {};
 
@@ -153,7 +147,7 @@ export default function ProblemsPage() {
       return;
     }
 
-    const code = editorRef.current ? editorRef.current.getValue() : "";
+    const code = userCode ?? "";
     if (!code.trim()) {
       api.warning("SQL 코드를 입력하세요.");
       return;
@@ -183,7 +177,6 @@ export default function ProblemsPage() {
       const resultContent = jsonToMarkdown(response.userResult);
       console.log("2 >> ", resultContent);
       setExecutionResult(resultContent);
-      //setExecutionResult(response.userResult); // ✅ 결과 출력
     } catch (error) {
       console.error("[executeSQL] SQL 실행 오류:", error);
       setExecutionColor("red");

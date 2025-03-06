@@ -19,16 +19,39 @@ interface ProblemState {
   fetchProblemsByTopic: (topic: string) => Promise<void>;
   fetchSingleProblem: (id: number) => Promise<void>;
   setSelectedProblem: (problem: Problem) => void;
+
+  // ✅ SQL 실행 관련 상태
+  isExecuting: boolean;
+  executionResult: object | string | null;
+  executionColor: string;
+  setIsExecuting: (isExecuting: boolean) => void;
+  setExecutionResult: (result: object | string | null) => void;
+  setExecutionColor: (color: string) => void;
+
+  // ✅ Monaco Editor의 입력된 코드 상태 추가
+  userCode: string;
+  setUserCode: (code: string) => void;
 }
 
-// ✅ Zustand 전역 상태 관리
+// ✅ Zustand store 수정
 export const useProblemStore = create<ProblemState>((set) => ({
   problems: [],
   selectedProblem: null,
   loading: false,
   error: null,
 
-  // ✅ 특정 topic의 문제 목록 가져오기
+  isExecuting: false,
+  executionResult: null,
+  executionColor: "#ccc",
+
+  setIsExecuting: (isExecuting) => set({ isExecuting }),
+  setExecutionResult: (result) => set({ executionResult: result }),
+  setExecutionColor: (color) => set({ executionColor: color }),
+
+  // ✅ 기본 코드값 추가 (예제 SQL)
+  userCode: "SELECT * FROM users;",
+  setUserCode: (code) => set({ userCode: code }),
+
   fetchProblemsByTopic: async (topic) => {
     set({ loading: true, error: null });
     try {
@@ -44,7 +67,6 @@ export const useProblemStore = create<ProblemState>((set) => ({
     }
   },
 
-  // ✅ 특정 문제 가져오기
   fetchSingleProblem: async (id) => {
     set({ loading: true, error: null });
     try {

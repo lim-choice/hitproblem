@@ -1,10 +1,8 @@
-import React, { useRef, useState } from "react";
-import { Card, Splitter, message, Tag } from "antd";
-import MonacoEditor, { OnMount } from "@monaco-editor/react";
-import type { editor } from "monaco-editor";
-import { executeUserQuery } from "../../api/executionApi";
-import { jsonToMarkdown } from "../../hooks/useMarkdown";
+import React from "react";
+import { Card, Splitter, Tag } from "antd";
+import MonacoEditor from "@monaco-editor/react";
 import MarkdownViewer from "../common/MarkdownViewer";
+import { useProblemStore } from "../../hooks/useProblemStore";
 
 interface CodingProblemProps {
   selectedProblem: {
@@ -29,27 +27,17 @@ const CodingProblem: React.FC<CodingProblemProps> = ({
   selectedProblem,
   theme,
 }) => {
-  const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null);
-  const [isExecuting, setIsExecuting] = useState(false);
-  const [executionResult, setExecutionResult] = useState<
-    object | string | null
-  >(null);
-  const [executionColor, setExecutionColor] = useState("#ccc");
-  const [api, contextHolder] = message.useMessage();
-
-  const handleEditorMount: OnMount = (editor) => {
-    editorRef.current = editor;
-  };
+  const { isExecuting, executionResult, executionColor, setUserCode } =
+    useProblemStore();
 
   return (
     <>
-      {contextHolder}
       <Splitter
         style={{ boxShadow: "0 0 10px rgba(0, 0, 0, 0.1)", height: "100%" }}
       >
         <Splitter.Panel
           style={{ boxSizing: "border-box", position: "relative" }}
-          min={"20%"}
+          min={"10%"}
         >
           <Card
             title={
@@ -68,19 +56,6 @@ const CodingProblem: React.FC<CodingProblemProps> = ({
                 "문제 제목"
               )
             }
-            style={{
-              height: "100%",
-              display: "flex",
-              flexDirection: "column",
-              background: theme === "dark" ? "#222" : "#fff",
-              color: theme === "dark" ? "#ddd" : "#000",
-            }}
-            headStyle={{
-              backgroundColor: theme === "dark" ? "#333" : "#f5f5f5",
-              fontSize: "16px",
-              padding: "12px",
-              color: theme === "dark" ? "#ddd" : "#000",
-            }}
           >
             <MarkdownViewer content={selectedProblem?.content ?? ""} />
           </Card>
@@ -91,52 +66,34 @@ const CodingProblem: React.FC<CodingProblemProps> = ({
           min={"20%"}
         >
           <Splitter layout="vertical" style={{ height: "100%" }}>
-            <Splitter.Panel
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                height: "60%",
-              }}
-              min={"20%"}
-            >
+            <Splitter.Panel style={{ height: "60%" }} min={"20%"}>
               <MonacoEditor
                 height="100%"
                 width="100%"
                 defaultLanguage="sql"
                 theme={theme === "dark" ? "vs-dark" : "light"}
-                value={"SELECT * FROM users;"}
                 options={{
                   minimap: { enabled: false },
                   fontSize: 14,
                   scrollBeyondLastLine: false,
                   automaticLayout: true,
                 }}
-                onMount={handleEditorMount}
+                onChange={(newValue) => setUserCode(newValue || "")}
               />
             </Splitter.Panel>
-
-            <Splitter.Panel style={{ height: "40%" }} min={"20%"}>
+            <Splitter.Panel style={{ height: "0%" }} min={"20%"}>
               <Card
                 title="실행 결과"
                 style={{
                   height: "100%",
-                  background: theme === "dark" ? "#222" : "#fff",
-                  color: theme === "dark" ? "#ddd" : "#000",
                   border: `2px solid ${executionColor}`,
-                }}
-                headStyle={{
-                  backgroundColor: theme === "dark" ? "#333" : "#f5f5f5",
-                  fontSize: "16px",
-                  padding: "12px",
-                  color: theme === "dark" ? "#ddd" : "#000",
                 }}
               >
                 <div
                   style={{
                     flexGrow: 1,
                     overflowY: "scroll",
-                    maxHeight: "65%",
-                    minHeight: "0px",
+                    height: "100%",
                   }}
                 >
                   {isExecuting ? (
