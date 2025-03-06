@@ -36,10 +36,16 @@ const CodingProblem: React.FC<CodingProblemProps> = ({
         style={{ boxShadow: "0 0 10px rgba(0, 0, 0, 0.1)", height: "100%" }}
       >
         <Splitter.Panel
-          style={{ boxSizing: "border-box", position: "relative" }}
+          style={{
+            boxSizing: "border-box",
+            position: "relative",
+          }}
           min={"10%"}
         >
           <Card
+            style={{
+              height: "100%",
+            }}
             title={
               selectedProblem ? (
                 <>
@@ -57,7 +63,13 @@ const CodingProblem: React.FC<CodingProblemProps> = ({
               )
             }
           >
-            <MarkdownViewer content={selectedProblem?.content ?? ""} />
+            <div
+              style={{
+                height: "100%",
+              }}
+            >
+              <MarkdownViewer content={selectedProblem?.content ?? ""} />
+            </div>
           </Card>
         </Splitter.Panel>
 
@@ -81,19 +93,23 @@ const CodingProblem: React.FC<CodingProblemProps> = ({
                 onChange={(newValue) => setUserCode(newValue || "")}
               />
             </Splitter.Panel>
-            <Splitter.Panel style={{ height: "0%" }} min={"20%"}>
+            <Splitter.Panel style={{ height: "100%" }} min={"20%"}>
               <Card
                 title="실행 결과"
                 style={{
                   height: "100%",
                   border: `2px solid ${executionColor}`,
+                  overflow: "hidden",
+                  display: "flex",
+                  flexDirection: "column",
                 }}
               >
                 <div
                   style={{
                     flexGrow: 1,
-                    overflowY: "scroll",
-                    height: "100%",
+                    overflowY: "auto",
+                    height: "90%",
+                    padding: "5px",
                   }}
                 >
                   {isExecuting ? (
