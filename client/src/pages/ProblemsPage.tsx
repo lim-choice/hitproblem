@@ -44,6 +44,7 @@ import { useProblemStore } from "../hooks/useProblemStore";
 import { jsonToMarkdown } from "../hooks/useMarkdown";
 import { executeUserQuery } from "../api/executionApi";
 import MarkdownViewer from "../components/common/MarkdownViewer";
+import CodingProblem from "../components/problems/CodingProblem";
 
 const { Header, Footer, Content } = Layout;
 const { Text } = Typography;
@@ -411,142 +412,11 @@ export default function ProblemsPage() {
             </div>
           </div>
 
-          <Splitter
-            style={{ boxShadow: "0 0 10px rgba(0, 0, 0, 0.1)", height: "100%" }}
-          >
-            <Splitter.Panel
-              style={{ boxSizing: "border-box", position: "relative" }}
-              min={"20%"}
-            >
-              <Card
-                title={
-                  selectedProblem ? (
-                    <>
-                      <Tag
-                        color={
-                          difficultyColors[
-                            selectedProblem.difficulty as DifficultyType
-                          ] || "default"
-                        }
-                      >
-                        {selectedProblem.difficulty}
-                      </Tag>{" "}
-                      {selectedProblem.title}
-                    </>
-                  ) : (
-                    "문제 제목"
-                  )
-                }
-                style={{
-                  height: "100%",
-                  display: "flex",
-                  flexDirection: "column",
-                  background: theme === "dark" ? "#222" : "#fff",
-                  color: theme === "dark" ? "#ddd" : "#000",
-                }}
-                styles={{
-                  header: {
-                    backgroundColor: theme === "dark" ? "#333" : "#f5f5f5",
-                    fontSize: "16px",
-                    padding: "12px",
-                    color: theme === "dark" ? "#ddd" : "#000",
-                  },
-                }}
-              >
-                <MarkdownViewer content={selectedProblem?.content ?? ""} />
-              </Card>
-            </Splitter.Panel>
-
-            <Splitter.Panel
-              style={{ boxSizing: "border-box", height: "100%" }}
-              min={"20%"}
-            >
-              <Splitter layout="vertical" style={{ height: "100%" }}>
-                {/* ✅ Monaco Editor 적용 */}
-                <Splitter.Panel
-                  style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    height: "60%",
-                    boxSizing: "border-box",
-                  }}
-                  min={"20%"}
-                >
-                  <MonacoEditor
-                    height="100%"
-                    width="100%"
-                    defaultLanguage="sql"
-                    theme={theme === "dark" ? "vs-dark" : "light"}
-                    value={"SELECT * FROM users;"}
-                    options={{
-                      minimap: { enabled: false },
-                      fontSize: 14,
-                      scrollBeyondLastLine: false,
-                      automaticLayout: true,
-                    }}
-                    onMount={handleEditorMount}
-                  />
-                </Splitter.Panel>
-
-                {/* ✅ 실행 결과 카드 추가 */}
-                <Splitter.Panel
-                  style={{ height: "40%", boxSizing: "border-box" }}
-                  min={"20%"}
-                >
-                  <Card
-                    title="실행 결과"
-                    style={{
-                      height: "100%", // ✅ 부모 높이 유지
-                      background: theme === "dark" ? "#222" : "#fff",
-                      color: theme === "dark" ? "#ddd" : "#000",
-                      border: `2px solid ${executionColor}`, // ✅ 테두리 유지
-                      position: "relative",
-                      overflow: "hidden", // ✅ 내부에서만 스크롤 발생
-                      display: "flex", // ✅ 내부 요소가 넘칠 때 레이아웃 유지
-                      flexDirection: "column", // ✅ 세로 방향 배치 유지
-                    }}
-                    styles={{
-                      header: {
-                        backgroundColor: theme === "dark" ? "#333" : "#f5f5f5",
-                        fontSize: "16px",
-                        padding: "12px",
-                        color: theme === "dark" ? "#ddd" : "#000",
-                      },
-                    }}
-                  >
-                    {/* ✅ 실행 결과 내용이 길어지면 내부에서만 스크롤 */}
-                    <div
-                      style={{
-                        flexGrow: 1, // ✅ 내부 콘텐츠가 많아도 Card 크기를 유지
-                        overflowY: "scroll", // ✅ 세로 스크롤 항상 표시
-                        overflowX: "auto", // ✅ 가로 스크롤 필요 시 표시
-                        maxHeight: "65%", // ✅ 부모 Card 크기 초과 방지
-                        minHeight: "0px", // ✅ flex 레이아웃 문제 해결
-                      }}
-                    >
-                      {isExecuting ? (
-                        <div style={{ textAlign: "center", color: "#aaa" }}>
-                          ⏳ 실행 중...
-                        </div>
-                      ) : (
-                        <div
-                          style={{
-                            color: executionColor,
-                            overflowX: "auto", // ✅ 가로 스크롤 강제 활성화 (긴 표 대비)
-                            whiteSpace: "nowrap", // ✅ 긴 표 자동 줄바꿈 방지
-                            maxHeight: "100%", // ✅ 내용이 많아도 부모 높이 초과 방지
-                            display: "block", // ✅ 테이블이 부모 크기를 초과할 때 정상적으로 스크롤 가능하도록 수정
-                          }}
-                        >
-                          <MarkdownViewer content={executionResult ?? ""} />
-                        </div>
-                      )}
-                    </div>
-                  </Card>
-                </Splitter.Panel>
-              </Splitter>
-            </Splitter.Panel>
-          </Splitter>
+          {selectedProblem ? (
+            <CodingProblem selectedProblem={selectedProblem} theme={theme} />
+          ) : (
+            <div>문제를 선택하세요.</div>
+          )}
         </Content>
 
         {/* ✅ Drawer (문제 목록) */}
