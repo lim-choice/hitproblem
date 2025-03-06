@@ -1,12 +1,9 @@
 import React, { useState, useEffect, useRef } from "react";
-import QueryResultTable from "../components/problems/QueryResultTable";
 import LoginModal from "../components/auth/LoginModal";
 import BugReportModal from "../components/report/BugReportModal";
 import {
   Alert,
   Layout,
-  Splitter,
-  Card,
   Button,
   Breadcrumb,
   Typography,
@@ -35,15 +32,11 @@ import {
   LogoutOutlined,
   UserOutlined,
 } from "@ant-design/icons";
-import { useAuth } from "../hooks/useAuth";
-import MonacoEditor, { OnMount } from "@monaco-editor/react";
-import type { editor } from "monaco-editor";
 import _ from "lodash";
 import { useAuthStore } from "../hooks/useAuthStore";
 import { useProblemStore } from "../hooks/useProblemStore";
 import { jsonToMarkdown } from "../hooks/useMarkdown";
 import { executeUserQuery } from "../api/executionApi";
-import MarkdownViewer from "../components/common/MarkdownViewer";
 import CodingProblem from "../components/problems/CodingProblem";
 
 const { Header, Footer, Content } = Layout;
@@ -66,10 +59,7 @@ export default function ProblemsPage() {
     selectedProblem,
     setSelectedProblem,
     fetchProblemsByTopic,
-    loading,
-    error,
     userCode,
-    executionResult,
     setExecutionResult,
   } = useProblemStore();
 

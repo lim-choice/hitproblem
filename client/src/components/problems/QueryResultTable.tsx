@@ -1,11 +1,12 @@
-import React from "react";
 import { Table } from "antd";
 
-type QueryResultTableProps = {
-  data: any[];
+type QueryResultTableProps<T extends Record<string, unknown>> = {
+  data: T[];
 };
 
-const QueryResultTable: React.FC<QueryResultTableProps> = ({ data }) => {
+const QueryResultTable = <T extends Record<string, unknown>>({
+  data,
+}: QueryResultTableProps<T>) => {
   if (!data || data.length === 0) {
     return <div>결과가 없습니다.</div>;
   }
@@ -21,9 +22,10 @@ const QueryResultTable: React.FC<QueryResultTableProps> = ({ data }) => {
     <Table
       dataSource={data}
       columns={columns}
-      rowKey={(record) =>
-        record.id ?? record.key ?? Math.random().toString(36).substr(2, 9)
-      } // ✅ 고유한 값 설정
+      rowKey={
+        (record, index) =>
+          (record.id as string) ?? (record.key as string) ?? `row-${index}` // ✅ id, key가 없으면 인덱스를 사용
+      }
       pagination={{ pageSize: 5 }}
     />
   );

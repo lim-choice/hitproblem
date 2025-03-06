@@ -124,7 +124,13 @@ const CodingProblem: React.FC<CodingProblemProps> = ({
                         whiteSpace: "nowrap",
                       }}
                     >
-                      <MarkdownViewer content={executionResult ?? ""} />
+                      <MarkdownViewer
+                        content={
+                          typeof executionResult === "string"
+                            ? executionResult
+                            : JSON.stringify(executionResult ?? "")
+                        }
+                      />
                     </div>
                   )}
                 </div>
