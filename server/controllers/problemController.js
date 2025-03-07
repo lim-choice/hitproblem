@@ -72,10 +72,17 @@ const fetchProblemListByTestSheet = async (req, res) => {
       return res.status(404).json({ message: "테스트 시험지를 찾을 수 없습니다." });
     }
 
+    let index = 0;
+    const formattedProblemList = problemList.map((problem) => ({
+      ...problem,
+      index: ++index,
+      choices: problem.choices ? problem.choices.split(",").map(choice => choice.trim()) : [],
+    }));
+
     res.json({
       status: "success",
       message: "시험지의 문제 목록 가져오기 성공",
-      data: problemList,
+      data: formattedProblemList,
     });
   } catch (error) {
     console.error("[fetchProblemListByTestSheet] 오류:", error);
