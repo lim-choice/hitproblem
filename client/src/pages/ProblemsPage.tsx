@@ -38,6 +38,7 @@ import { useProblemStore } from "../hooks/useProblemStore";
 import { jsonToMarkdown } from "../hooks/useMarkdown";
 import { executeUserQuery } from "../api/executionApi";
 import CodingProblem from "../components/problems/CodingProblem";
+import MultipleChoiceProblem from "../components/problems/MultipleChoiceProblem";
 
 const { Header, Footer, Content } = Layout;
 const { Text } = Typography;
@@ -74,6 +75,22 @@ export default function ProblemsPage() {
   const [executionColor, setExecutionColor] = useState("#ccc"); // ✅ 실행 결과 색상
 
   const [api, contextHolder] = message.useMessage();
+
+  //😀 샘플 데이터
+  const problem = {
+    id: 1,
+    title: "다음 중 올바른 SQL 문장은?",
+    content: "아래의 SQL 문장을 분석하고 올바른 문장을 선택하세요.",
+    difficulty: "중간",
+    choices: [
+      "SELECT * FROM table;",
+      "DELETE table;",
+      "UPDATE FROM table SET name='test';",
+      "INSERT INTO table (name) VALUES 'test';",
+      "DROP DATABASE table;",
+    ],
+    answer: 1, // 정답: "SELECT * FROM table;"
+  };
 
   // ✅ 로그인 성공 후 유저 정보 갱신
   const handleLoginSuccess = async () => {
@@ -395,11 +412,22 @@ export default function ProblemsPage() {
             </div>
           </div>
 
-          {selectedProblem ? (
+          {/* {selectedProblem?.type === "multiple-choice" ? (
+            <MultipleChoiceProblem
+              selectedProblem={selectedProblem}
+              theme={theme}
+            />
+          ) : (
+            <CodingProblem selectedProblem={selectedProblem} theme={theme} />
+          )} */}
+
+          <MultipleChoiceProblem selectedProblem={problem} theme={theme} />
+
+          {/* {selectedProblem ? (
             <CodingProblem selectedProblem={selectedProblem} theme={theme} />
           ) : (
             <div>문제를 선택하세요.</div>
-          )}
+          )} */}
         </Content>
 
         {/* ✅ Drawer (문제 목록) */}
