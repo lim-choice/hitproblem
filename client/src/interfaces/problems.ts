@@ -14,5 +14,6 @@ export interface Problem {
   title: string;
   difficulty: string;
   content: string;
-  choices: string;
+  choices: string[];
+  answer: string; //유저가 입력한 값
 }

@@ -1,11 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Card, Splitter, Table, Tag } from "antd";
 import MarkdownViewer from "../common/MarkdownViewer";
 import { Problem } from "../../interfaces/problems";
+import { useThemeStore } from "../../hooks/useThemeStore"; // Zustand 사용
 
 interface MultipleChoiceProblemProps {
   selectedProblem: Problem;
-  theme: "light" | "dark";
 }
 
 const difficultyColors: Record<string, string> = {
@@ -20,7 +20,20 @@ const difficultyColors: Record<string, string> = {
 const MultipleChoiceProblem: React.FC<MultipleChoiceProblemProps> = ({
   selectedProblem,
 }) => {
-  const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
+  const [selectedAnswer, setSelectedAnswer] = useState<string | null>(
+    selectedProblem?.answer || null
+  );
+
+  const selectAnswer = (key: string) => {
+    setSelectedAnswer(key);
+    selectedProblem.answer = key; // ✅ 선택된 답안을 문제 객체에 반영
+  };
+
+  useEffect(() => {
+    if (selectedAnswer !== selectedProblem?.answer) {
+      setSelectedAnswer(selectedProblem?.answer);
+    }
+  }, [selectedProblem, selectedAnswer]);
 
   return (
     <Splitter
@@ -83,9 +96,9 @@ const MultipleChoiceProblem: React.FC<MultipleChoiceProblemProps> = ({
         >
           <Table
             dataSource={selectedProblem?.choices.map((choice, index) => ({
-              key: index + 1,
-              number: index + 1, // ✅ 선택지 번호
-              choice: `${index + 1}. ${choice}`, // ✅ "1. 내용", "2. 내용" 형식으로 표시
+              key: `${index + 1}`,
+              number: index + 1,
+              choice: `${index + 1}. ${choice}`,
             }))}
             columns={[
               {
@@ -97,16 +110,15 @@ const MultipleChoiceProblem: React.FC<MultipleChoiceProblemProps> = ({
             pagination={false}
             rowKey="key"
             rowSelection={{
-              type: "radio", // ✅ Radio 선택을 rowSelection에서 처리
+              type: "radio",
               selectedRowKeys: selectedAnswer ? [selectedAnswer] : [],
-              onSelect: (record) => setSelectedAnswer(record.key),
+              onSelect: (record) => selectAnswer(record.key),
             }}
             rowClassName={(record) =>
               selectedAnswer === record.key ? "selected-row" : ""
             }
-            // ✅ Row 전체를 클릭하면 선택되도록 설정
             onRow={(record) => ({
-              onClick: () => setSelectedAnswer(record.key),
+              onClick: () => selectAnswer(record.key),
               style: { cursor: "pointer" },
             })}
           />

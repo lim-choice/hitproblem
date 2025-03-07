@@ -260,12 +260,8 @@ export default function ProblemsPage() {
             renderItem={(item) => (
               <List.Item
                 onClick={() => {
-                  const currentIndex = problems.findIndex(
-                    (p) => p.id === item.id
-                  );
                   setSelectedProblem(item);
                   setDrawerVisible(false);
-                  setCurrentIndex(currentIndex);
                 }}
                 style={{ cursor: "pointer" }}
               >

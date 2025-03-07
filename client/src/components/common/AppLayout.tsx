@@ -45,7 +45,16 @@ const AppLayout: React.FC<AppLayoutProps> = ({ title, children }) => {
         <AppHeader />
 
         {/* 페이지 컨텐츠 영역 */}
-        <Content style={{ flex: 1 }}>{children}</Content>
+        <Content
+          style={{
+            flex: 1,
+            minHeight: "80%",
+            display: "flex",
+            flexDirection: "column",
+          }}
+        >
+          {children}
+        </Content>
 
         {/* 공통 푸터 */}
         <AppFooter />

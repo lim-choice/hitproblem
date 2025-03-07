@@ -8,7 +8,7 @@ import {
   UserOutlined,
 } from "@ant-design/icons";
 import LoginModal from "../../components/auth/LoginModal";
-import { useThemeStore } from "../../hooks/useThemeStore"; // Zustand 사용
+import { useThemeStore } from "../../hooks/useThemeStore";
 import { useAuthStore } from "../../hooks/useAuthStore";
 
 const { Header } = Layout;
