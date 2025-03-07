@@ -1,21 +1,21 @@
 import { create } from "zustand";
-import { fetchProblemsByTopic, fetchProblemById } from "../api/problemApi";
+import {
+  fetchProblemsByTopic,
+  fetchProblemListByTestSheet,
+  fetchProblemById,
+  fetchTestSheetList,
+} from "../api/problemApi";
 
-interface Problem {
-  id: number;
-  title: string;
-  major_topic: string;
-  mid_topic: string;
-  sub_topic: string;
-  difficulty: string;
-  content: string;
-}
+import { TestSheet, Problem } from "../interfaces/problems";
 
 interface ProblemState {
+  testSheets: TestSheet[];
   problems: Problem[];
   selectedProblem: Problem | null;
   loading: boolean;
   error: string | null;
+  fetchTestSheetList: () => Promise<void>;
+  fetchProblemListByTestSheet: (id: number) => Promise<void>;
   fetchProblemsByTopic: (topic: string) => Promise<void>;
   fetchSingleProblem: (id: number) => Promise<void>;
   setSelectedProblem: (problem: Problem) => void;
@@ -35,6 +35,7 @@ interface ProblemState {
 
 // ✅ Zustand store 수정
 export const useProblemStore = create<ProblemState>((set) => ({
+  testSheets: [],
   problems: [],
   selectedProblem: null,
   loading: false,
@@ -52,6 +53,39 @@ export const useProblemStore = create<ProblemState>((set) => ({
   userCode: "SELECT * FROM users;",
   setUserCode: (code) => set({ userCode: code }),
 
+  // 시험지 가져오는 API
+  fetchTestSheetList: async () => {
+    set({ loading: true, error: null });
+    try {
+      const testSheets = await fetchTestSheetList();
+      console.log(testSheets);
+      set({ testSheets: testSheets });
+    } catch (error) {
+      set({ error: `문제 목록을 불러오는 중 오류 발생 (${error})` });
+    } finally {
+      set({ loading: false });
+    }
+  },
+
+  // 시험지 ID에 따른 문제 가져오는 API
+  fetchProblemListByTestSheet: async (id: number) => {
+    set({ loading: true, error: null });
+    try {
+      const problems = await fetchProblemListByTestSheet(id);
+      set({
+        problems,
+        selectedProblem: problems.length > 0 ? problems[0] : null,
+      });
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
+      set({ error: `문제 목록을 불러오는 중 오류 발생 (${errorMessage})` });
+    } finally {
+      set({ loading: false });
+    }
+  },
+
+  //Legacy
   fetchProblemsByTopic: async (topic) => {
     set({ loading: true, error: null });
     try {

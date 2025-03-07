@@ -1,7 +1,6 @@
 import { create } from "zustand";
 import { loginUser, logoutUser, checkAuth } from "../api/auth";
 import { User } from "../interfaces/user";
-import { LogoutOutlined } from "@ant-design/icons";
 
 interface AuthState {
   user: User | null;

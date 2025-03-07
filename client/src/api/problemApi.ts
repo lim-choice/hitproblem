@@ -34,3 +34,25 @@ export const fetchProblemById = async (id: number) => {
     throw error;
   }
 };
+
+// ✅ 시험지 목록 가져오는 API
+export const fetchTestSheetList = async () => {
+  try {
+    const response = await api.get(`/problem/getTestSheetList`);
+    return response.data.data;
+  } catch (error) {
+    console.error("[fetchProblemById] 문제 가져오기 실패:", error);
+    throw error;
+  }
+};
+
+// ✅ 시험지에 따른 문제 목록 가져오는 API
+export const fetchProblemListByTestSheet = async (id: number) => {
+  try {
+    const response = await api.get(`/problem/getProblemTestSheet?id=${id}`);
+    return response.data.data;
+  } catch (error) {
+    console.error("[fetchProblemById] 문제 가져오기 실패:", error);
+    throw error;
+  }
+};

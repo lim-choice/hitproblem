@@ -1,56 +1,21 @@
 import React, { useEffect } from "react";
+import { Layout, Breadcrumb, Switch, Avatar, Dropdown } from "antd";
 import {
-  Alert,
-  Layout,
-  Button,
-  Breadcrumb,
-  Typography,
-  ConfigProvider,
-  Switch,
-  Drawer,
-  List,
-  Tag,
-  message,
-  Menu,
-  Avatar,
-  Dropdown,
-} from "antd";
-import {
-  BookOutlined,
-  PlayCircleOutlined,
   HomeOutlined,
-  PieChartOutlined,
-  BugOutlined,
   MoonOutlined,
   SunOutlined,
-  MenuOutlined,
-  LeftOutlined,
-  RightOutlined,
-  CheckOutlined,
   LogoutOutlined,
   UserOutlined,
 } from "@ant-design/icons";
 import LoginModal from "../../components/auth/LoginModal";
-import { useThemeStore } from "../../hooks/useThemeStore"; // ✅ Zustand 사용
+import { useThemeStore } from "../../hooks/useThemeStore"; // Zustand 사용
 import { useAuthStore } from "../../hooks/useAuthStore";
 
 const { Header } = Layout;
 
 const AppHeader: React.FC = () => {
   const { theme, toggleTheme } = useThemeStore();
-  const {
-    user,
-    verifyLogin,
-    checkLoginModal,
-    openLoginModal,
-    logout,
-    isLoginModalOpen,
-  } = useAuthStore();
-
-  // ✅ 로그인 성공 후 유저 정보 갱신
-  const handleLoginSuccess = async () => {
-    await verifyLogin(); // ✅ 로그인 성공 후 유저 정보 갱신
-  };
+  const { user, verifyLogin, checkLoginModal, logout } = useAuthStore();
 
   // 프로필 드롭다운 메뉴
   const menuItems = [
@@ -60,7 +25,7 @@ const AppHeader: React.FC = () => {
         <span style={{ fontWeight: "bold", color: "#333" }}>
           {user?.nick} 님
         </span>
-      ), // ✅ 닉네임 표시 (클릭 안 됨)
+      ), // 닉네임 표시 (클릭 안 됨)
       disabled: true, // 클릭 방지
     },
     {
@@ -73,7 +38,7 @@ const AppHeader: React.FC = () => {
     },
   ];
 
-  // ✅ API에서 문제 목록 가져오기 (첫 로딩 시 실행)
+  // API에서 문제 목록 가져오기 (첫 로딩 시 실행)
   useEffect(() => {
     //페이지 새로고침 시 로그인 상태 확인
     verifyLogin().then(() => checkLoginModal());
@@ -90,6 +55,9 @@ const AppHeader: React.FC = () => {
         justifyContent: "space-between",
       }}
     >
+      {/* 로그인 모달 */}
+      <LoginModal />
+
       {/* 왼쪽 로고 & 네비게이션 */}
       <div style={{ display: "flex", alignItems: "center" }}>
         <HomeOutlined
@@ -105,11 +73,7 @@ const AppHeader: React.FC = () => {
             fontSize: "16px",
             color: theme === "dark" ? "#ccc" : "#000",
           }}
-          items={[
-            { title: <a href="#">대단원</a> },
-            { title: "중단원" },
-            { title: "소단원" },
-          ]}
+          items={[{ title: <a href="/">{document.title}</a> }]}
         />
       </div>
       <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
@@ -143,11 +107,6 @@ const AppHeader: React.FC = () => {
             style={{ cursor: "pointer", backgroundColor: "#ccc" }}
           />
         )}
-        <LoginModal
-          open={isLoginModalOpen}
-          onClose={openLoginModal}
-          onSuccess={handleLoginSuccess}
-        />
       </div>
     </Header>
   );

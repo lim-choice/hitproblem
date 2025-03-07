@@ -15,6 +15,9 @@ export default function MainPage() {
       <Button type="primary" onClick={() => navigate("/problemList")}>
         문제 목록 보기
       </Button>
+      <Button type="primary" onClick={() => navigate("/test")}>
+        시험 목록 보기
+      </Button>
       <Button type="primary" onClick={() => navigate("/problems")}>
         테스트 페이지
       </Button>
