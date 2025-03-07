@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { loginUser, logoutUser, checkAuth } from "../api/auth";
 import { User } from "../interfaces/user";
+import { LogoutOutlined } from "@ant-design/icons";
 
 interface AuthState {
   user: User | null;
@@ -36,7 +37,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
   login: async (email, password) => {
     const response = await loginUser({ email, password });
-    set({ user: response.data.user, isLoginModalOpen: false }); // ✅ 로그인 후 모달 닫기
+    set({ user: response.data.user, isLoginModalOpen: false });
   },
 
   logout: async () => {

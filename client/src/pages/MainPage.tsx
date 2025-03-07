@@ -12,6 +12,9 @@ export default function MainPage() {
       <Button type="primary" onClick={() => setIsModalOpen(true)}>
         랜덤 문제 풀기
       </Button>
+      <Button type="primary" onClick={() => navigate("/problemList")}>
+        문제 목록 보기
+      </Button>
       <Button type="primary" onClick={() => navigate("/problems")}>
         테스트 페이지
       </Button>
