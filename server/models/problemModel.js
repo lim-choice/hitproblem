@@ -53,7 +53,7 @@ const getProblemByTopic = async (topic) => {
 
 // 특정 문제 가져오기 (id)
 const getProblemById = async (id) => {
-  const [rows] = await pool.query("SELECT * FROM problems WHERE id = ?", [id]);
+  const [rows] = await pool.query("SELECT * FROM subjective_problems WHERE id = ?", [id]);
   return rows[0];
 };
 
