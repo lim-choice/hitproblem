@@ -53,8 +53,49 @@ const getProblemByTopic = async (topic) => {
 
 // 특정 문제 가져오기 (id)
 const getProblemById = async (id) => {
-    const [rows] = await pool.query("SELECT * FROM problems WHERE id = ?", [id]);
-    return rows[0];
-  };
+  const [rows] = await pool.query("SELECT * FROM problems WHERE id = ?", [id]);
+  return rows[0];
+};
 
-module.exports = { getAllProblems, getProblemByTopic, getProblemById };
+// 시험지 목록 가져오기 (type, subType이 없는 경우 전체 다 가져오기)
+const getTestSheetList = async(type, subType) => {
+  let connection;
+  try {
+    connection = await pool.getConnection();
+
+    let query = `
+      SELECT
+        id,
+        type,
+        sub_type,
+        title,
+        description
+      FROM test_sheets
+    `;
+    const conditions = [];
+    const params = [];
+
+    if (type) {
+      conditions.push("type = ?");
+      params.push(type);
+    }
+    if (subType) {
+      conditions.push("sub_type = ?");
+      params.push(subType);
+    }
+    if (conditions.length > 0) {
+      query += " WHERE " + conditions.join(" AND ");
+    }
+    query += " LIMIT 1000";
+
+    const [rows] = await connection.query(query, params);
+    return rows;
+  } catch (error) {
+    console.error("[getProblemByTopic] 오류 발생:", error);
+    throw error;
+  } finally {
+    if (connection) connection.release();
+  }
+};
+
+module.exports = { getAllProblems, getProblemByTopic, getProblemById, getTestSheetList };
