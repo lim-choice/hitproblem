@@ -1,6 +1,6 @@
 const { getAllProblems, getProblemByTopic } = require("../models/problemModel");
 
-const { getTestSheetList } = require("../models/problemModel");
+const { getTestSheetList, getProblemListByTestSheet } = require("../models/problemModel");
 
 
 
@@ -43,7 +43,7 @@ const fetchProblemByTopic = async (req, res) => {
 
 //테스트 시트 목록 가져오기
 const fetchTestSheetList = async (req, res) => {
-  const { type, subType } = req.params;
+  const { type, subType } = req.query;
   try {
     const testSheetList = await getTestSheetList(type, subType);
     if (!testSheetList) {
@@ -56,10 +56,33 @@ const fetchTestSheetList = async (req, res) => {
       data: testSheetList,
     });
   } catch (error) {
-    console.error("[getTestSheetList] 오류:", error);
+    console.error("[fetchTestSheetList] 오류:", error);
     res.status(500).json({ message: "시험지를 가져오는 중 오류 발생" });
   }
 };
 
 
-module.exports = { fetchTestSheetList, fetchAllProblems, fetchProblemByTopic };
+//테스트 시트 목록 가져오기
+const fetchProblemListByTestSheet = async (req, res) => {
+  const { id } = req.query;
+
+  try {
+    const problemList = await getProblemListByTestSheet(id);
+    if (!problemList) {
+      return res.status(404).json({ message: "테스트 시험지를 찾을 수 없습니다." });
+    }
+
+    res.json({
+      status: "success",
+      message: "시험지의 문제 목록 가져오기 성공",
+      data: problemList,
+    });
+  } catch (error) {
+    console.error("[fetchProblemListByTestSheet] 오류:", error);
+    res.status(500).json({ message: "시험지의 문제 목록을 가져오는 중 오류 발생" });
+  }
+};
+
+
+module.exports = { fetchTestSheetList, fetchProblemListByTestSheet, 
+  fetchAllProblems, fetchProblemByTopic };

@@ -91,11 +91,64 @@ const getTestSheetList = async(type, subType) => {
     const [rows] = await connection.query(query, params);
     return rows;
   } catch (error) {
-    console.error("[getProblemByTopic] 오류 발생:", error);
+    console.error("[getTestSheetList] 오류 발생:", error);
     throw error;
   } finally {
     if (connection) connection.release();
   }
 };
 
-module.exports = { getAllProblems, getProblemByTopic, getProblemById, getTestSheetList };
+const getProblemListByTestSheet = async (id) => {
+  let connection;
+  try {
+    connection = await pool.getConnection();
+
+    const query = `
+      SELECT 
+          tq.test_sheet_id,
+          tq.problem_type,
+          CASE 
+              WHEN tq.problem_type = 'subjective' THEN sp.id
+              ELSE mcp.id
+          END AS problem_id,
+          CASE 
+              WHEN tq.problem_type = 'subjective' THEN sp.title
+              ELSE mcp.title
+          END AS title,
+          CASE 
+              WHEN tq.problem_type = 'subjective' THEN sp.difficulty
+              ELSE mcp.difficulty
+          END AS difficulty,
+          CASE 
+              WHEN tq.problem_type = 'subjective' THEN sp.engine_type
+              ELSE mcp.engine_type
+          END AS engine_type,
+          CASE 
+              WHEN tq.problem_type = 'subjective' THEN sp.content
+              ELSE mcp.content
+          END AS content,
+          CASE 
+              WHEN tq.problem_type = 'multiple-choice' 
+              THEN GROUP_CONCAT(mco.choice_text ORDER BY mco.choice_index ASC)
+              ELSE NULL
+          END AS choices
+      FROM test_sheet_questions tq
+      LEFT JOIN subjective_problems sp ON tq.problem_type = 'subjective' AND tq.problem_id = sp.id
+      LEFT JOIN multiple_choice_problems mcp ON tq.problem_type = 'multiple-choice' AND tq.problem_id = mcp.id
+      LEFT JOIN multiple_choice_options mco ON mcp.id = mco.problem_id
+      WHERE tq.test_sheet_id = ?
+      GROUP BY tq.id;
+    `;
+
+    const [rows] = await connection.query(query, [id]);
+    return rows;
+  } catch (error) {
+    console.error("[getProblemListByTestSheet] 오류 발생:", error);
+    throw error;
+  } finally {
+    if (connection) connection.release();
+  }
+};
+
+
+module.exports = { getAllProblems, getProblemByTopic, getProblemById, getTestSheetList, getProblemListByTestSheet };
