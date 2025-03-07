@@ -44,6 +44,7 @@ export default function ProblemsPage() {
   };
 
   const handlePrevProblem = () => {
+    console.log("handlePrevProblem problems", problems);
     console.log("handlePrevProblem", selectedProblem);
     if (!problems.length || !selectedProblem) return;
 
@@ -58,6 +59,7 @@ export default function ProblemsPage() {
   };
 
   const handleNextProblem = () => {
+    console.log("handleNextProblem problems", problems);
     console.log("handleNextProblem", selectedProblem);
     if (!problems.length || !selectedProblem) return;
 
@@ -88,10 +90,13 @@ export default function ProblemsPage() {
     setExecutionResult(null);
     setExecutionColor("#ccc"); // 기본 상태
 
+    //입력한 쿼리문 저장
+    selectedProblem.answer = userCode;
+
     try {
       // API 요청
       const response = await executeUserQuery(
-        selectedProblem.id,
+        selectedProblem.problem_id,
         "mysql",
         code
       );

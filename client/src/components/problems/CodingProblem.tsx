@@ -1,17 +1,13 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Card, Splitter, Tag } from "antd";
 import MonacoEditor from "@monaco-editor/react";
 import MarkdownViewer from "../common/MarkdownViewer";
 import { useProblemStore } from "../../hooks/useProblemStore";
+import { useThemeStore } from "../../hooks/useThemeStore";
+import { Problem } from "../../interfaces/problems";
 
 interface CodingProblemProps {
-  selectedProblem: {
-    id: number;
-    title: string;
-    content: string;
-    difficulty: "쉬움" | "중간" | "어려움" | "Easy" | "Medium" | "Hard";
-  } | null;
-  theme: "light" | "dark";
+  selectedProblem: Problem;
 }
 
 const difficultyColors: Record<string, string> = {
@@ -23,12 +19,15 @@ const difficultyColors: Record<string, string> = {
   Hard: "red",
 };
 
-const CodingProblem: React.FC<CodingProblemProps> = ({
-  selectedProblem,
-  theme,
-}) => {
-  const { isExecuting, executionResult, executionColor, setUserCode } =
-    useProblemStore();
+const CodingProblem: React.FC<CodingProblemProps> = ({ selectedProblem }) => {
+  const {
+    isExecuting,
+    executionResult,
+    executionColor,
+    userCode,
+    setUserCode,
+  } = useProblemStore();
+  const { theme } = useThemeStore();
 
   return (
     <>
@@ -90,6 +89,7 @@ const CodingProblem: React.FC<CodingProblemProps> = ({
                   scrollBeyondLastLine: false,
                   automaticLayout: true,
                 }}
+                value={userCode}
                 onChange={(newValue) => setUserCode(newValue || "")}
               />
             </Splitter.Panel>

@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { Card, Splitter, Table, Tag } from "antd";
 import MarkdownViewer from "../common/MarkdownViewer";
 import { Problem } from "../../interfaces/problems";
-import { useThemeStore } from "../../hooks/useThemeStore"; // Zustand 사용
 
 interface MultipleChoiceProblemProps {
   selectedProblem: Problem;
