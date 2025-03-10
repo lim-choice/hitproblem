@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import _ from "lodash";
 
 import { Alert, Button, Drawer, List, Tag, message } from "antd";
 import {
@@ -12,7 +13,8 @@ import {
 } from "@ant-design/icons";
 
 import AppLayout from "../components/common/AppLayout";
-import _ from "lodash";
+import SubmissionModal from "../components/problems/SubmissionProblemModal";
+
 import { useThemeStore } from "../hooks/useThemeStore";
 import { useProblemStore } from "../hooks/useProblemStore";
 import { jsonToMarkdown } from "../hooks/useMarkdown";
@@ -43,14 +45,28 @@ export default function ProblemsPage() {
   const [isExecuting, setIsExecuting] = useState(false); // 실행 중 여부
   const [executionColor, setExecutionColor] = useState("#ccc"); // 실행 결과 색상
 
-  const handleSubmit = () => {
+  const [isModalVisible, setIsModalVisible] = useState(false);
+
+  // 제출 버튼 클릭 시 모달 표시
+  const handleOpenModal = () => {
+    if (!problems.length || !selectedProblem) return;
+    saveAnswerProblem(); // 현재 문제의 입력된 값을 저장
+    setIsModalVisible(true);
+  };
+
+  const handleConfirmSubmission = () => {
     api.success("TODO: 제출 구현...");
+
+    console.log(problems);
   };
 
   const handlePrevProblem = () => {
     console.log("handlePrevProblem problems", problems);
     console.log("handlePrevProblem", selectedProblem);
     if (!problems.length || !selectedProblem) return;
+
+    //문제에 입력된 값을 저장
+    saveAnswerProblem();
 
     const prevIndex = selectedProblem.index - 1; // ✅ 바로 이전 문제 index 계산
     const prevProblem = problems.find((p) => p.index === prevIndex);
@@ -67,6 +83,9 @@ export default function ProblemsPage() {
     console.log("handleNextProblem", selectedProblem);
     if (!problems.length || !selectedProblem) return;
 
+    //문제에 입력된 값을 저장
+    saveAnswerProblem();
+
     const nextIndex = selectedProblem.index + 1; // ✅ 바로 다음 문제 index 계산
     const nextProblem = problems.find((p) => p.index === nextIndex);
 
@@ -74,6 +93,14 @@ export default function ProblemsPage() {
       setSelectedProblem(nextProblem);
     } else {
       api.warning("다음 문제가 없습니다.");
+    }
+  };
+
+  const saveAnswerProblem = () => {
+    if (selectedProblem?.problem_type == "subjective") {
+      selectedProblem.answer = userCode ?? "";
+    } else if (selectedProblem?.problem_type == "multiple-choice") {
+      //객관식의 경우 문제를 선택했을 경우 바로 저장되기 때문에 제외
     }
   };
 
@@ -95,7 +122,7 @@ export default function ProblemsPage() {
     setExecutionColor("#ccc"); // 기본 상태
 
     //입력한 쿼리문 저장
-    selectedProblem.answer = userCode;
+    saveAnswerProblem();
 
     try {
       // API 요청
@@ -244,11 +271,18 @@ export default function ProblemsPage() {
             <Button
               type="primary"
               icon={<CheckOutlined />} // 체크 아이콘 추가
-              onClick={handleSubmit} // 제출 로직
+              onClick={handleOpenModal} // 제출 로직
               disabled={selectedProblem?.index !== problems?.length}
             >
               제출
             </Button>
+            {/* 제출 확인 모달 */}
+            <SubmissionModal
+              problems={problems}
+              visible={isModalVisible}
+              onCancel={() => setIsModalVisible(false)}
+              onConfirm={handleConfirmSubmission}
+            />
           </div>
         </div>
 
