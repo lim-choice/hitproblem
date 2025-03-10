@@ -18,6 +18,7 @@ import { jsonToMarkdown } from "../hooks/useMarkdown";
 import { executeUserQuery } from "../api/executionApi";
 import CodingProblem from "../components/problems/CodingProblem";
 import MultipleChoiceProblem from "../components/problems/MultipleChoiceProblem";
+import usePreventRefresh from "../hooks/usePreventRefresh";
 
 export default function ProblemsPage() {
   const {
@@ -145,6 +146,9 @@ export default function ProblemsPage() {
       //console.log(`useEffect: selectedProblem`, selectedProblem);
     }
   }, [selectedProblem, setExecutionResult]);
+
+  //새로고침 할 경우 경고창 띄우기
+  usePreventRefresh(true);
 
   return (
     <AppLayout title="문제 풀이">
