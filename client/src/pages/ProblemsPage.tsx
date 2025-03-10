@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 import { Alert, Button, Drawer, List, Tag, message } from "antd";
 import {
@@ -21,6 +22,8 @@ import MultipleChoiceProblem from "../components/problems/MultipleChoiceProblem"
 import usePreventRefresh from "../hooks/usePreventRefresh";
 
 export default function ProblemsPage() {
+  const navigate = useNavigate();
+
   const {
     problems,
     selectedProblem,
@@ -148,7 +151,7 @@ export default function ProblemsPage() {
   }, [selectedProblem, setExecutionResult]);
 
   //새로고침 할 경우 경고창 띄우기
-  usePreventRefresh(true);
+  usePreventRefresh(true, () => navigate("/"));
 
   return (
     <AppLayout title="문제 풀이">
