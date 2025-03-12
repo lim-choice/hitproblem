@@ -51,15 +51,17 @@ const makeNewTest = async (user_id, test_sheet_id, time_limit) => {
   let connection;
   try {
     connection = await pool.getConnection();
+
     const [result] = await connection.query(
-      `INSERT INTO exam_sessions (user_id, test_sheet_id, time_limit, status, started_at)
+      `INSERT INTO exam_sessions (user_id, test_sheet_id, time_limit, status, started_at) 
        VALUES (?, ?, ?, 'in_progress', NOW())`,
       [user_id, test_sheet_id, time_limit]
     );
-    return result;
+
+    return result.insertId; // ✅ `insertId` 반환하여 `startTest`에서 사용 가능하게 함.
   } catch (error) {
     console.error("[makeNewTest] 오류 발생:", error);
-    return false;
+    throw error;
   } finally {
     if (connection) connection.release();
   }

@@ -1,4 +1,5 @@
 const db = require("../models/userModel"); // DB 연결
+const { verifyToken } = require("../config/jwtConfig");
 const {
   getDuringTest,
   cancelTest,
@@ -67,19 +68,19 @@ const startTest = async (req, res) => {
     }
 
     //해당되는 시험이 존재하는지 확인
-    const timeLimit = getTestSheetTime(testSheetId);
+    const timeLimit = await getTestSheetTime(testSheetId);
 
     //신규 시험 세션 생성
-    makeNewTest(userId, testSheetId, timeLimit);
-
-    //트랜잭션 커밋
-    await connection.commit();
+    const newTestId = await makeNewTest(userId, testSheetId, timeLimit);
+    if (!newTestId) {
+      throw new Error("시험 세션 생성 실패");
+    }
 
     //시험 시작
     res.json({
       success: true,
       message: "시험이 시작되었습니다.",
-      session_id: result.insertId,
+      session_id: newTestId,
       test_sheet_id: testSheetId,
       remaining_time: timeLimit,
     });
