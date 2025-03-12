@@ -6,15 +6,18 @@ HitProblem은 TypeScript + Vite + Ant Design을 사용한 프론트엔드와 Exp
 ## 기술 스택
 
 ### Frontend
+
 - TypeScript
 - Vite
 - Ant Design
 
 ### Backend
+
 - Node.js
 - Express.js
 
 ### DB
+
 - MariaDB
 
 ## 설치 방법
@@ -37,7 +40,8 @@ npm install
 
 ```sh
 # nodemon을 사용한 서버 실행 (개발 환경 권장)
-nodemon server.js
+npx nodemon server.js
+nodemon server.js       #전역으로 이미 설치했을 경우
 
 # 일반적인 서버 실행
 node server.js
@@ -75,6 +79,7 @@ CORS_ORIGIN=http://localhost:5173
 `.env` 파일을 프로젝트 루트 디렉토리에 생성한 후, 필요한 값들을 채워넣으세요.
 
 ## 기타
+
 - 개발 환경에서는 `nodemon`을 사용하여 변경 사항을 자동 반영할 수 있습니다.
 - `CORS_ORIGIN` 값을 필요에 맞게 변경하여 CORS 정책을 설정하세요.
 
