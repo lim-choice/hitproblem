@@ -19,7 +19,7 @@ const TestPage: React.FC = () => {
     fetchTestSheetList,
     fetchProblemListByTestSheet,
   } = useProblemStore();
-  const { isTestOngoing, testData, startTest, cancelTest } = useTest();
+  const { testSession, startTest, cancelTest } = useTest();
   const [serverError, setServerError] = useState(false);
   const [isFetching, setIsFetching] = useState(false); // API 요청 중인지 확인
 
@@ -200,7 +200,7 @@ const TestPage: React.FC = () => {
 
       {/* 진행 중인 시험 확인 모달 */}
       <ExamContinueModal
-        visible={isTestOngoing}
+        visible={testSession !== null}
         onContinue={() => handleContinueExam("Y")}
         onCancel={() => handleContinueExam("N")} // ✅ 취소 버튼 클릭 시 취소 모달 열기
       />
