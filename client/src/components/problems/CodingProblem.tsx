@@ -5,19 +5,11 @@ import MarkdownViewer from "../common/MarkdownViewer";
 import { useProblemStore } from "../../hooks/useProblemStore";
 import { useThemeStore } from "../../hooks/useThemeStore";
 import { Problem } from "../../interfaces/problems";
+import { difficultyColors } from "../../utils/constatns";
 
 interface CodingProblemProps {
   selectedProblem: Problem;
 }
-
-const difficultyColors: Record<string, string> = {
-  쉬움: "green",
-  중간: "orange",
-  어려움: "red",
-  Easy: "green",
-  Medium: "orange",
-  Hard: "red",
-};
 
 const CodingProblem: React.FC<CodingProblemProps> = ({ selectedProblem }) => {
   const {

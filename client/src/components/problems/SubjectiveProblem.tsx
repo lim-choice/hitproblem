@@ -1,30 +1,29 @@
 import React, { useState, useEffect } from "react";
-import { Card, Splitter, Table, Tag } from "antd";
+import { Card, Input, Splitter, Tag } from "antd";
 import MarkdownViewer from "../common/MarkdownViewer";
 import { Problem } from "../../interfaces/problems";
 import { difficultyColors } from "../../utils/constatns";
 
-interface MultipleChoiceProblemProps {
+interface SubjectiveProblemProps {
   selectedProblem: Problem;
 }
 
-const MultipleChoiceProblem: React.FC<MultipleChoiceProblemProps> = ({
+const SubjectiveProblem: React.FC<SubjectiveProblemProps> = ({
   selectedProblem,
 }) => {
-  const [selectedAnswer, setSelectedAnswer] = useState<string | null>(
-    selectedProblem?.answer || null
-  );
-
-  const selectAnswer = (key: string) => {
-    setSelectedAnswer(key);
-    selectedProblem.answer = key; // ✅ 선택된 답안을 문제 객체에 반영
-  };
+  const [answer, setAnswer] = useState(selectedProblem?.answer || "");
 
   useEffect(() => {
-    if (selectedAnswer !== selectedProblem?.answer) {
-      setSelectedAnswer(selectedProblem?.answer);
-    }
-  }, [selectedProblem, selectedAnswer]);
+    setAnswer(selectedProblem?.answer || "");
+  }, [selectedProblem]);
+
+  const handleAnswerChange = (
+    event: React.ChangeEvent<HTMLTextAreaElement>
+  ) => {
+    const newAnswer = event.target.value;
+    setAnswer(newAnswer);
+    selectedProblem.answer = newAnswer;
+  };
 
   return (
     <Splitter
@@ -44,6 +43,8 @@ const MultipleChoiceProblem: React.FC<MultipleChoiceProblemProps> = ({
         <Card
           style={{
             height: "100%",
+            display: "flex",
+            flexDirection: "column",
           }}
           title={
             selectedProblem ? (
@@ -63,7 +64,7 @@ const MultipleChoiceProblem: React.FC<MultipleChoiceProblemProps> = ({
             )
           }
         >
-          <div style={{ height: "100%" }}>
+          <div style={{ flex: 1, overflowY: "auto" }}>
             <MarkdownViewer
               content={`### ${selectedProblem?.title}  ${selectedProblem?.content ?? ""}`}
             />
@@ -71,7 +72,7 @@ const MultipleChoiceProblem: React.FC<MultipleChoiceProblemProps> = ({
         </Card>
       </Splitter.Panel>
 
-      {/* ✅ 객관식 선택지 (테이블) */}
+      {/* ✅ 답안 입력 영역 */}
       <Splitter.Panel
         style={{
           boxSizing: "border-box",
@@ -80,38 +81,22 @@ const MultipleChoiceProblem: React.FC<MultipleChoiceProblemProps> = ({
         min={"20%"}
       >
         <Card
-          title="객관식 선택지"
+          title="답안 입력"
           style={{
             height: "100%",
+            display: "flex",
+            flexDirection: "column",
           }}
+          bodyStyle={{ flex: 1, display: "flex", flexDirection: "column" }} // ✅ Card 내부 확장
         >
-          <Table
-            dataSource={selectedProblem?.choices.map((choice, index) => ({
-              key: `${index + 1}`,
-              number: index + 1,
-              choice: `${index + 1}. ${choice}`,
-            }))}
-            columns={[
-              {
-                title: "선택지",
-                dataIndex: "choice",
-                key: "choice",
-              },
-            ]}
-            pagination={false}
-            rowKey="key"
-            rowSelection={{
-              type: "radio",
-              selectedRowKeys: selectedAnswer ? [selectedAnswer] : [],
-              onSelect: (record) => selectAnswer(record.key),
+          <Input.TextArea
+            value={answer}
+            onChange={handleAnswerChange}
+            placeholder="답안을 입력하세요."
+            style={{
+              flex: 1, // ✅ 부모 크기에 맞게 자동 확장
+              resize: "none", // ✅ 사용자가 크기 조정하지 못하도록 설정
             }}
-            rowClassName={(record) =>
-              selectedAnswer === record.key ? "selected-row" : ""
-            }
-            onRow={(record) => ({
-              onClick: () => selectAnswer(record.key),
-              style: { cursor: "pointer" },
-            })}
           />
         </Card>
       </Splitter.Panel>
@@ -119,4 +104,4 @@ const MultipleChoiceProblem: React.FC<MultipleChoiceProblemProps> = ({
   );
 };
 
-export default MultipleChoiceProblem;
+export default SubjectiveProblem;

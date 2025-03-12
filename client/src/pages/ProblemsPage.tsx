@@ -21,6 +21,7 @@ import { jsonToMarkdown } from "../hooks/useMarkdown";
 import { executeUserQuery } from "../api/executionApi";
 import CodingProblem from "../components/problems/CodingProblem";
 import MultipleChoiceProblem from "../components/problems/MultipleChoiceProblem";
+import SubjectiveProblem from "../components/problems/SubjectiveProblem";
 import usePreventRefresh from "../hooks/usePreventRefresh";
 
 export default function ProblemsPage() {
@@ -97,8 +98,10 @@ export default function ProblemsPage() {
   };
 
   const saveAnswerProblem = () => {
-    if (selectedProblem?.problem_type == "subjective") {
+    if (selectedProblem?.problem_type == "coding") {
       selectedProblem.answer = userCode ?? "";
+    } else if (selectedProblem?.problem_type == "subjective") {
+      //주관식의 경우 답안을 입력했을 때마다 바로 저장되기 때문에 제외
     } else if (selectedProblem?.problem_type == "multiple-choice") {
       //객관식의 경우 문제를 선택했을 경우 바로 저장되기 때문에 제외
     }
@@ -264,7 +267,7 @@ export default function ProblemsPage() {
               icon={<PlayCircleOutlined />}
               loading={isExecuting} // 실행 중이면 로딩 표시
               onClick={executeSQL}
-              disabled={selectedProblem?.problem_type !== "subjective"}
+              disabled={selectedProblem?.problem_type !== "coding"}
             >
               {isExecuting ? "실행 중..." : "코드 실행"}
             </Button>
@@ -286,11 +289,14 @@ export default function ProblemsPage() {
           </div>
         </div>
 
-        {/* 문제 타입에 따라 다르게 뷰잉하도록 처리 */}
         {selectedProblem?.problem_type === "multiple-choice" ? (
           <MultipleChoiceProblem selectedProblem={selectedProblem} />
-        ) : (
+        ) : selectedProblem?.problem_type === "coding" ? (
           <CodingProblem selectedProblem={selectedProblem} />
+        ) : selectedProblem?.problem_type === "subjective" ? (
+          <SubjectiveProblem selectedProblem={selectedProblem} />
+        ) : (
+          <div>알 수 없는 문제 유형입니다.</div>
         )}
 
         {/* Drawer (문제 목록) */}
