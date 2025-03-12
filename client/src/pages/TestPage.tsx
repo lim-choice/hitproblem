@@ -1,9 +1,11 @@
 import React, { useEffect, useState, useCallback } from "react";
-import { Table, Button, Alert, message } from "antd";
+import { Table, Button, Alert, message, Tooltip, Tag } from "antd";
 import { useProblemStore } from "../hooks/useProblemStore";
 import { useNavigate } from "react-router-dom";
 import AppLayout from "../components/common/AppLayout";
 import { TestSheet } from "../interfaces/problems";
+import { difficultyColors } from "../utils/constatns";
+import type { ColumnsType } from "antd/es/table";
 
 const TestPage: React.FC = () => {
   const {
@@ -16,6 +18,13 @@ const TestPage: React.FC = () => {
   const [serverError, setServerError] = useState(false);
   const [isFetching, setIsFetching] = useState(false); // API 요청 중인지 확인
   const navigate = useNavigate();
+
+  // TestSheet 타입 확장 (난이도별 문제 개수 추가)
+  interface ExtendedTestSheet extends TestSheet {
+    easy_count: number;
+    medium_count: number;
+    hard_count: number;
+  }
 
   // 시험 목록 가져오기 (최초 로딩 시)
   useEffect(() => {
@@ -42,32 +51,65 @@ const TestPage: React.FC = () => {
     [fetchProblemListByTestSheet]
   );
 
-  const columns = [
+  // 툴팁 렌더링 함수
+  const renderQuestionCountTooltip = (record: ExtendedTestSheet) => {
+    const difficultyLevels = ["Easy", "Medium", "Hard"] as const;
+
+    return (
+      <Tooltip
+        title={
+          <div style={{ padding: "5px" }}>
+            {difficultyLevels.map((level) => {
+              const key =
+                `${level.toLowerCase()}_count` as keyof ExtendedTestSheet;
+              return (
+                <div
+                  key={level}
+                  style={{ display: "flex", alignItems: "center" }}
+                >
+                  <Tag color={difficultyColors[level] || "default"}>
+                    {level}
+                  </Tag>
+                  {record[key] || 0}개
+                </div>
+              );
+            })}
+          </div>
+        }
+        overlayInnerStyle={{ backgroundColor: "#fff", color: "#000" }} // ✅ 툴팁 배경 하얀색
+      >
+        {record.question_count === 0 ? "-" : `${record.question_count}개`}
+      </Tooltip>
+    );
+  };
+
+  // 제한 시간 렌더링 함수
+  const renderTime = (time: number) => (time === 0 ? "-" : `${time}분`);
+
+  // 컬럼 정의
+  const columns: ColumnsType<TestSheet> = [
     { title: "대분류", dataIndex: "type", key: "type" },
     { title: "소분류", dataIndex: "sub_type", key: "sub_type" },
     { title: "시험명", dataIndex: "title", key: "title" },
     {
-      title: "제한 시간",
-      dataIndex: "time",
-      key: "time",
-      render: (time: number) => (time === 0 ? "제한 없음" : `${time}분`),
-    },
-    {
       title: "문항 수",
       dataIndex: "question_count",
       key: "question_count",
-      render: (question_count: number) =>
-        question_count === 0 ? "문제 없음" : `${question_count}개`,
+      align: "center",
+      render: (_, record) => renderQuestionCountTooltip(record),
     },
     {
-      title: "내용",
-      dataIndex: "description",
-      key: "description",
+      title: "제한 시간",
+      dataIndex: "time",
+      key: "time",
+      align: "center",
+      render: renderTime,
     },
+    { title: "내용", dataIndex: "description", key: "description" },
     {
       title: "액션",
       key: "action",
-      render: (_: unknown, record: TestSheet) => (
+      render: (_, record) => (
         <Button type="primary" onClick={() => handleSelectProblem(record)}>
           시험 보기
         </Button>

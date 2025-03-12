@@ -4,6 +4,11 @@ export interface TestSheet {
   sub_type: string;
   title: string;
   description: string;
+  time: number;
+  question_count: number;
+  easy_count: number;
+  medium_count: number;
+  hard_count: number;
 }
 
 export interface Problem {
