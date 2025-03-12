@@ -75,7 +75,8 @@ const getTestSheetList = async (type, subType) => {
         type,
         sub_type,
         title,
-        description
+        description,
+        time
       FROM test_sheets
     `;
     const conditions = [];
