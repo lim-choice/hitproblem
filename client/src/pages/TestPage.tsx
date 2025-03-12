@@ -47,6 +47,19 @@ const TestPage: React.FC = () => {
     { title: "소분류", dataIndex: "sub_type", key: "sub_type" },
     { title: "시험명", dataIndex: "title", key: "title" },
     {
+      title: "제한 시간",
+      dataIndex: "time",
+      key: "time",
+      render: (time: number) => (time === 0 ? "제한 없음" : `${time}분`),
+    },
+    {
+      title: "문항 수",
+      dataIndex: "question_count",
+      key: "question_count",
+      render: (question_count: number) =>
+        question_count === 0 ? "문제 없음" : `${question_count}개`,
+    },
+    {
       title: "내용",
       dataIndex: "description",
       key: "description",

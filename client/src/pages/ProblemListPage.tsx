@@ -45,7 +45,11 @@ const ProblemListPage: React.FC = () => {
       dataIndex: "type",
       key: "type",
       render: (type: string) =>
-        type === "multiple-choice" ? "객관식" : "주관식",
+        type === "multiple-choice"
+          ? "객관식"
+          : type === "subjective"
+            ? "주관식"
+            : "코딩",
     },
     {
       title: "액션",
