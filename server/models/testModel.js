@@ -26,8 +26,8 @@ const getDuringTest = async (user_id, test_sheet_id) => {
   }
 };
 
-// 진행중인 시험 취소
-const cancelTest = async (existingTestId, reason) => {
+// 진행중인 시험 삭제
+const destroyTest = async (existingTestId, reason) => {
   let connection;
   try {
     connection = await pool.getConnection();
@@ -67,4 +67,4 @@ const makeNewTest = async (user_id, test_sheet_id, time_limit) => {
   }
 };
 
-module.exports = { getDuringTest, cancelTest, makeNewTest };
+module.exports = { getDuringTest, destroyTest, makeNewTest };

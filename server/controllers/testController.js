@@ -2,7 +2,7 @@ const db = require("../models/userModel"); // DB 연결
 const { verifyToken } = require("../config/jwtConfig");
 const {
   getDuringTest,
-  cancelTest,
+  destroyTest,
   makeNewTest,
 } = require("../models/testModel");
 const { getTestSheetTime } = require("../models/problemModel");
@@ -64,7 +64,7 @@ const startTest = async (req, res) => {
     const testList = await getDuringTest(userId, testSheetId);
     if (testList.length > 0) {
       const existingTestId = testList[0].id;
-      cancelTest(existingTestId, "새로운 시험 시작");
+      destroyTest(existingTestId, "새로운 시험 시작");
     }
 
     //해당되는 시험이 존재하는지 확인
@@ -125,7 +125,7 @@ const continueTest = async (req, res) => {
 
     // 제한시간이 0인 경우에는 취소 로직을 처리하지 않음
     if (ongoingTest.time_limit !== 0) {
-      await cancelTest(ongoingTest.id, "시험 시간이 초과되어 자동 취소됨.");
+      await destroyTest(ongoingTest.id, "시험 시간이 초과되어 자동 취소됨.");
 
       return res.json({
         success: false,
@@ -143,6 +143,45 @@ const continueTest = async (req, res) => {
       session_id: ongoingTest.id,
       test_sheet_id: ongoingTest.test_sheet_id,
       remaining_time: remainingTime.toFixed(2),
+    });
+  } catch (error) {
+    console.error("[continueTest] 오류 발생:", error);
+    return res.status(500).json({ message: "서버 오류 발생" });
+  }
+};
+
+//시험 취소
+const cancelTest = async (req, res) => {
+  const token = req.cookies.token; // ✅ 쿠키에서 JWT 가져오기
+
+  if (!token) {
+    return res.status(401).json({ message: "로그인이 필요합니다." });
+  }
+
+  try {
+    const decoded = verifyToken(token); // ✅ 토큰 해독 (유저 정보 포함)
+
+    // DB에서 유저 정보 조회
+    const user = await db.getUserById(decoded.id);
+    if (!user) {
+      return res.status(404).json({ message: "유저 정보를 찾을 수 없습니다." });
+    }
+
+    const userId = user.id;
+
+    // 진행중인 시험이 있는지 확인
+    const testList = await getDuringTest(userId, null);
+    const ongoingTest = testList[0];
+    if (!ongoingTest) {
+      return res.status(404).json({ message: "진행 중인 시험이 없습니다." });
+    }
+
+    const testSheetId = ongoingTest.test_sheet_id;
+    const result = destroyTest(testSheetId);
+
+    res.json({
+      status: "success",
+      message: "시험 취소 성공",
     });
   } catch (error) {
     console.error("[continueTest] 오류 발생:", error);
@@ -193,5 +232,6 @@ module.exports = {
   isDuringTest,
   startTest,
   continueTest,
+  cancelTest,
   getProblemListByUserTest,
 };
