@@ -176,13 +176,17 @@ const cancelTest = async (req, res) => {
       return res.status(404).json({ message: "진행 중인 시험이 없습니다." });
     }
 
-    const testSheetId = ongoingTest.test_sheet_id;
-    const result = destroyTest(testSheetId);
+    const testSheetId = ongoingTest.id;
+    const result = await destroyTest(testSheetId, "의도적으로 시험 취소");
 
-    res.json({
-      status: "success",
-      message: "시험 취소 성공",
-    });
+    if (result == true) {
+      res.json({
+        status: "success",
+        message: "시험 취소 성공",
+      });
+    } else {
+      return res.status(500).json({ message: "진행중인 시험이 없습니다." });
+    }
   } catch (error) {
     console.error("[continueTest] 오류 발생:", error);
     return res.status(500).json({ message: "서버 오류 발생" });
