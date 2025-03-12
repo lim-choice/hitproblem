@@ -19,14 +19,13 @@ const TestPage: React.FC = () => {
     fetchTestSheetList,
     fetchProblemListByTestSheet,
   } = useProblemStore();
-  const { isTestOngoing, testData, startTest } = useTest();
+  const { isTestOngoing, testData, startTest, cancelTest } = useTest();
   const [serverError, setServerError] = useState(false);
   const [isFetching, setIsFetching] = useState(false); // API 요청 중인지 확인
 
   const [selectedTest, setSelectedTest] = useState<TestSheet | null>(null); // ✅ 선택한 시험 저장
 
   const [isStartModalVisible, setIsStartModalVisible] = useState(false);
-  const [isContinueModalVisible, setIsContinueModalVisible] = useState(false);
   const [isCancelModalVisible, setIsCancelModalVisible] = useState(false);
 
   const navigate = useNavigate();
@@ -76,12 +75,20 @@ const TestPage: React.FC = () => {
     }
   };
 
-  const handleContinueExam = async () => {
+  const handleContinueExam = async (result: string) => {
     //
+    if (result == "Y") {
+      //
+    } else {
+      //시험 취소 처리
+      await handleCancelExam("Y");
+    }
   };
 
-  const handleCancelExam = async () => {
-    //
+  const handleCancelExam = async (result: string) => {
+    if (result == "Y") {
+      cancelTest();
+    }
   };
 
   // 툴팁 렌더링 함수
@@ -194,15 +201,15 @@ const TestPage: React.FC = () => {
       {/* 진행 중인 시험 확인 모달 */}
       <ExamContinueModal
         visible={isTestOngoing}
-        onContinue={handleContinueExam}
-        onCancel={() => {}} // ✅ 취소 버튼 클릭 시 취소 모달 열기
+        onContinue={() => handleContinueExam("Y")}
+        onCancel={() => handleContinueExam("N")} // ✅ 취소 버튼 클릭 시 취소 모달 열기
       />
 
       {/* 시험 취소 확인 모달 */}
       <ExamCancelModal
         visible={isCancelModalVisible}
-        onCancelConfirm={handleCancelExam}
-        onCancel={() => setIsCancelModalVisible(false)}
+        onCancelConfirm={() => handleCancelExam("Y")}
+        onCancel={() => handleCancelExam("N")}
       />
     </AppLayout>
   );

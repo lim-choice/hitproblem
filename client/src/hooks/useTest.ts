@@ -1,6 +1,10 @@
 import { useState, useEffect, useCallback } from "react";
 import { message } from "antd";
-import { fetchDuringTest, fetchStartTest } from "../api/testApi"; // ✅ API 호출 함수
+import {
+  fetchDuringTest,
+  fetchStartTest,
+  fetchCancelTest,
+} from "../api/testApi"; // ✅ API 호출 함수
 import { useNavigate } from "react-router-dom";
 import { useProblemStore } from "../hooks/useProblemStore";
 
@@ -23,6 +27,7 @@ export const useTest = () => {
     try {
       const response = await fetchDuringTest();
       if (response.status === "success" && response.testCount > 0) {
+        console.log("########## >> ", response);
         setIsTestOngoing(true);
         setTestData(response);
       } else {
@@ -47,7 +52,7 @@ export const useTest = () => {
         message.success("시험이 시작되었습니다!");
         navigate("/problems");
       } catch (error) {
-        console.error("[useTest] 시험 시작 실패:", error);
+        console.error("[startTest] 시험 시작 실패:", error);
         message.error("시험을 시작하는 중 오류가 발생했습니다.");
       } finally {
         setIsLoading(false);
@@ -55,6 +60,23 @@ export const useTest = () => {
     },
     [fetchProblemListByTestSheet, navigate]
   );
+
+  // ✅ 시험 취소
+  const cancelTest = async () => {
+    setIsLoading(true);
+    try {
+      await fetchCancelTest();
+      setIsTestOngoing(false);
+      setTestData(null);
+      message.success("시험이 취소되었습니다!");
+      navigate("/test");
+    } catch (error) {
+      console.error("[cancelTest] 시험 취소 실패:", error);
+      message.error("시험을 취소하는 중 오류가 발생했습니다.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   // ✅ 훅이 실행될 때 자동으로 진행 중인 시험 확인
   useEffect(() => {
@@ -67,6 +89,7 @@ export const useTest = () => {
     testData,
     checkOngoingTest,
     startTest,
+    cancelTest,
   };
 };
 

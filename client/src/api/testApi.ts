@@ -24,3 +24,12 @@ export const fetchStartTest = async (
   console.log(`fetchStartTest res: `, response);
   return response.data;
 };
+
+// 시험 취소 로직
+export const fetchCancelTest = async () => {
+  const apiUrl = `/test/cancelTest`;
+  console.log(`fetchCancelTest -- apiUrl: ${apiUrl}`);
+  const response = await api.get(apiUrl);
+  console.log(`fetchCancelTest res: `, response);
+  return response.data;
+};
