@@ -20,6 +20,8 @@ interface ProblemState {
   fetchSingleProblem: (id: number) => Promise<void>;
   setSelectedProblem: (problem: Problem) => void;
 
+  // ✅ 시험지 관련 상태
+
   // ✅ SQL 실행 관련 상태
   isExecuting: boolean;
   executionResult: object | string | null;

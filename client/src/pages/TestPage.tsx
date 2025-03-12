@@ -1,8 +1,12 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { Table, Button, Alert, message, Tooltip, Tag, Modal } from "antd";
 import { useProblemStore } from "../hooks/useProblemStore";
+import { useTest } from "../hooks/useTest";
 import { useNavigate } from "react-router-dom";
 import AppLayout from "../components/common/AppLayout";
+import ExamStartModal from "../components/Exams/ExamStartModal";
+import ExamContinueModal from "../components/Exams/ExamContinueModal";
+import ExamCancelModal from "../components/Exams/ExamCancelModal";
 import { TestSheet } from "../interfaces/problems";
 import { difficultyColors } from "../utils/constatns";
 import type { ColumnsType } from "antd/es/table";
@@ -15,11 +19,15 @@ const TestPage: React.FC = () => {
     fetchTestSheetList,
     fetchProblemListByTestSheet,
   } = useProblemStore();
+  const { isTestOngoing, testData, startTest } = useTest();
   const [serverError, setServerError] = useState(false);
   const [isFetching, setIsFetching] = useState(false); // API 요청 중인지 확인
 
   const [selectedTest, setSelectedTest] = useState<TestSheet | null>(null); // ✅ 선택한 시험 저장
-  const [isModalVisible, setIsModalVisible] = useState(false); // ✅ 모달 상태 관리
+
+  const [isStartModalVisible, setIsStartModalVisible] = useState(false);
+  const [isContinueModalVisible, setIsContinueModalVisible] = useState(false);
+  const [isCancelModalVisible, setIsCancelModalVisible] = useState(false);
 
   const navigate = useNavigate();
 
@@ -58,14 +66,22 @@ const TestPage: React.FC = () => {
 
   const handleSelectProblem = useCallback((record: TestSheet) => {
     setSelectedTest(record);
-    setIsModalVisible(true); // 모달 열기
+    setIsStartModalVisible(true);
   }, []);
 
   const handleStartExam = async () => {
-    if (!selectedTest) return;
-    await fetchProblemListByTestSheet(selectedTest.id);
-    setIsFetching(true);
-    setIsModalVisible(false);
+    if (selectedTest) {
+      startTest(selectedTest.id);
+      setIsStartModalVisible(false);
+    }
+  };
+
+  const handleContinueExam = async () => {
+    //
+  };
+
+  const handleCancelExam = async () => {
+    //
   };
 
   // 툴팁 렌더링 함수
@@ -166,36 +182,28 @@ const TestPage: React.FC = () => {
           pagination={{ pageSize: 10 }}
         />
       </div>
-      {/* ✅ 시험 시작 모달 */}
-      <Modal
-        title="시험 시작"
-        open={isModalVisible}
-        onOk={handleStartExam}
-        onCancel={() => setIsModalVisible(false)}
-        okText="시험 시작"
-        cancelText="취소"
-        centered
-      >
-        {selectedTest && (
-          <>
-            <p>
-              <strong>시험명:</strong> {selectedTest.title}
-            </p>
-            <p>
-              <strong>대분류:</strong> {selectedTest.type} /{" "}
-              <strong>소분류:</strong> {selectedTest.sub_type}
-            </p>
-            <p>
-              <strong>문항 수:</strong> {selectedTest.question_count}문항
-            </p>
-            <p>
-              <strong>제한 시간:</strong>{" "}
-              {selectedTest.time === 0 ? "제한 없음" : `${selectedTest.time}분`}
-            </p>
-            <p>시험을 시작하시겠습니까?</p>
-          </>
-        )}
-      </Modal>
+
+      {/* 시험 시작 모달 */}
+      <ExamStartModal
+        visible={isStartModalVisible}
+        selectedTest={selectedTest}
+        onStart={handleStartExam}
+        onCancel={() => setIsStartModalVisible(false)}
+      />
+
+      {/* 진행 중인 시험 확인 모달 */}
+      <ExamContinueModal
+        visible={isTestOngoing}
+        onContinue={handleContinueExam}
+        onCancel={() => {}} // ✅ 취소 버튼 클릭 시 취소 모달 열기
+      />
+
+      {/* 시험 취소 확인 모달 */}
+      <ExamCancelModal
+        visible={isCancelModalVisible}
+        onCancelConfirm={handleCancelExam}
+        onCancel={() => setIsCancelModalVisible(false)}
+      />
     </AppLayout>
   );
 };

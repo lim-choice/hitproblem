@@ -19,7 +19,7 @@ const ExamContinueModal: React.FC<ExamContinueModalProps> = ({
       onOk={onContinue}
       onCancel={onCancel}
       okText="시험 이어서 하기"
-      cancelText="새로 시작"
+      cancelText="진행중인 시험 취소"
       centered
     >
       <p>진행 중인 시험이 있습니다. 이어서 진행하시겠습니까?</p>
