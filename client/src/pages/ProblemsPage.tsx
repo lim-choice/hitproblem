@@ -269,7 +269,7 @@ export default function ProblemsPage() {
               icon={<PlayCircleOutlined />}
               loading={isExecuting} // 실행 중이면 로딩 표시
               onClick={executeSQL}
-              disabled={selectedProblem?.problem_type !== "subjective"}
+              disabled={selectedProblem?.problem_type !== "coding"}
             >
               {isExecuting ? "실행 중..." : "코드 실행"}
             </Button>

@@ -17,6 +17,7 @@ export const useAuth = () => {
   };
 
   useEffect(() => {
+    console.log("verifyLogin!");
     verifyLogin(); // ✅ 페이지 새로고침해도 로그인 유지
   }, []);
 
