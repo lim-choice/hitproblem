@@ -139,7 +139,27 @@ const getProblemListByTestSheet = async (id) => {
   }
 };
 
+const getTestSheetTime = async (testSheetId) => {
+  let connection;
+  try {
+    connection = await pool.getConnection();
+
+    const [rows] = await connection.query(
+      `SELECT time FROM test_sheets WHERE id = ?`,
+      [testSheetId]
+    );
+
+    return rows.length > 0 ? rows[0].time : null; // ✅ 값이 없으면 null 반환
+  } catch (error) {
+    console.error("[getTestSheetTime] 오류 발생:", error);
+    throw error;
+  } finally {
+    if (connection) connection.release();
+  }
+};
+
 module.exports = {
   getTestSheetList,
   getProblemListByTestSheet,
+  getTestSheetTime,
 };
