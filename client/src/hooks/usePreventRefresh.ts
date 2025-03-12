@@ -17,6 +17,7 @@ const usePreventRefresh = (shouldWarn: boolean, onRefresh?: () => void) => {
       sessionStorage.setItem("preventRefresh", "true"); // 새로고침 감지
       event.preventDefault();
       //event.returnValue = ""; // 기본 경고창 (크롬에서는 브라우저 기본 동작으로 실행)
+      alert("ㅇㅋㅇㅋ");
     };
 
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -29,6 +30,7 @@ const usePreventRefresh = (shouldWarn: boolean, onRefresh?: () => void) => {
         {
           sessionStorage.setItem("preventRefresh", "true"); // 새로고침 감지 플래그
           window.location.reload(); // 브라우저 새로고침 강제 실행
+          alert("ㅇㅋㅇㅋ2");
         }
       }
     };
@@ -44,6 +46,7 @@ const usePreventRefresh = (shouldWarn: boolean, onRefresh?: () => void) => {
 
   useEffect(() => {
     if (sessionStorage.getItem("preventRefresh") === "true") {
+      alert("ㅇㅋㅇㅋ3");
       sessionStorage.removeItem("preventRefresh"); // 플래그 제거
 
       if (onRefresh) {

@@ -10,12 +10,15 @@ import {
 import LoginModal from "../../components/auth/LoginModal";
 import { useThemeStore } from "../../hooks/useThemeStore";
 import { useAuthStore } from "../../hooks/useAuthStore";
+import { useNavigate } from "react-router-dom";
 
 const { Header } = Layout;
 
 const AppHeader: React.FC = () => {
   const { theme, toggleTheme } = useThemeStore();
   const { user, verifyLogin, checkLoginModal, logout } = useAuthStore();
+
+  const navigate = useNavigate();
 
   // 프로필 드롭다운 메뉴
   const menuItems = [
@@ -66,6 +69,9 @@ const AppHeader: React.FC = () => {
             color: theme === "dark" ? "#1890ff" : "#4096ff",
             marginRight: "12px",
           }}
+          onClick={() => {
+            navigate("/");
+          }}
         />
         <Breadcrumb
           separator=">"
@@ -73,7 +79,7 @@ const AppHeader: React.FC = () => {
             fontSize: "16px",
             color: theme === "dark" ? "#ccc" : "#000",
           }}
-          items={[{ title: <a href="/">{document.title}</a> }]}
+          items={[{ title: <a>{document.title}</a> }]}
         />
       </div>
       <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>

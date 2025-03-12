@@ -181,7 +181,9 @@ export default function ProblemsPage() {
   }, [selectedProblem, setExecutionResult]);
 
   //새로고침 할 경우 경고창 띄우기
-  usePreventRefresh(true, () => navigate("/"));
+  usePreventRefresh(true, () => {
+    navigate("/");
+  });
 
   return (
     <AppLayout title="문제 풀이">
@@ -267,7 +269,7 @@ export default function ProblemsPage() {
               icon={<PlayCircleOutlined />}
               loading={isExecuting} // 실행 중이면 로딩 표시
               onClick={executeSQL}
-              disabled={selectedProblem?.problem_type !== "coding"}
+              disabled={selectedProblem?.problem_type !== "subjective"}
             >
               {isExecuting ? "실행 중..." : "코드 실행"}
             </Button>
