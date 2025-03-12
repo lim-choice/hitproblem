@@ -71,29 +71,34 @@ const getTestSheetList = async (type, subType) => {
 
     let query = `
       SELECT
-        id,
-        type,
-        sub_type,
-        title,
-        description,
-        time
-      FROM test_sheets
+        ts.id,
+        ts.type,
+        ts.sub_type,
+        ts.title,
+        ts.description,
+        ts.time,
+        COUNT(tq.id) AS question_count  -- ✅ 문제 개수 추가
+      FROM test_sheets ts
+      LEFT JOIN test_sheet_questions tq ON ts.id = tq.test_sheet_id  -- ✅ 문제 개수 카운트
     `;
+
     const conditions = [];
     const params = [];
 
     if (type) {
-      conditions.push("type = ?");
+      conditions.push("ts.type = ?");
       params.push(type);
     }
     if (subType) {
-      conditions.push("sub_type = ?");
+      conditions.push("ts.sub_type = ?");
       params.push(subType);
     }
     if (conditions.length > 0) {
       query += " WHERE " + conditions.join(" AND ");
     }
-    query += " LIMIT 1000";
+
+    query += " GROUP BY ts.id"; // ✅ 시험지별 문제 개수 계산을 위해 GROUP BY 추가
+    query += " LIMIT 1000"; // ✅ 최대 1000개 제한
 
     const [rows] = await connection.query(query, params);
     return rows;
