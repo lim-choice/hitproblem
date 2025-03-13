@@ -50,7 +50,7 @@ export default function ProblemsPage() {
     setExecutionResult,
   } = useProblemStore();
 
-  const { remainingTime } = useTest();
+  const { remainingTime, stopTimer } = useTest();
 
   const { theme } = useThemeStore();
 
@@ -78,6 +78,9 @@ export default function ProblemsPage() {
     api.success("TODO: 제출 구현...");
 
     console.log(problems);
+
+    stopTimer();
+    navigate("/completion");
   };
 
   const handlePrevProblem = () => {

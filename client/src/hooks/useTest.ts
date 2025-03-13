@@ -189,6 +189,7 @@ export const useTest = () => {
     remainingTime,
     checkOngoingTest,
     startTest,
+    stopTimer,
     cancelTest,
     submitTest,
   };
