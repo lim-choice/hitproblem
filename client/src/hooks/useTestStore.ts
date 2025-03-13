@@ -1,11 +1,5 @@
 import { create } from "zustand";
 
-interface TestSession {
-  session_id: number;
-  test_sheet_id: number;
-  remaining_time: number;
-}
-
 interface TestState {
   testSession: TestSession | null;
   remainingTime: number;

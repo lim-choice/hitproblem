@@ -1,6 +1,11 @@
 import api from "./axiosInstance"; // ✅ Axios 인스턴스 사용
 import { ApiResponse } from "../interfaces/api";
-import { StartTestRequest, StartTestResponse } from "../interfaces/test";
+import {
+  StartTestRequest,
+  StartTestResponse,
+  TestSession,
+} from "../interfaces/test";
+import { Problem } from "../interfaces/problems";
 
 // ✅ 진행중인 시험 상태 가져오기
 export const fetchDuringTest = async () => {
@@ -35,12 +40,30 @@ export const fetchCancelTest = async () => {
 };
 
 // 시험 제출 로직
-export const fetchSubmitTest = async (sessionId: number) => {
+export const finishTest = async (testSession: TestSession) => {
   try {
-    const response = await api.post(`/test/submit`, { session_id: sessionId });
+    const response = await api.post(`/test/finishTest`, {
+      testSession,
+    });
     return response.data;
   } catch (error) {
-    console.error("[fetchSubmitTest] 시험 제출 실패:", error);
+    console.error("[finishTest] 시험 제출 실패:", error);
+    throw error;
+  }
+};
+
+export const postTestAnswer = async (
+  testSession: TestSession,
+  problem: Problem[]
+) => {
+  try {
+    const response = await api.post(`/test/postTestAnswer`, {
+      testSession,
+      problem,
+    });
+    return response.data;
+  } catch (error) {
+    console.error("[finishTest] 시험 제출 실패:", error);
     throw error;
   }
 };

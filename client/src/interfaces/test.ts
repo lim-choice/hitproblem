@@ -9,3 +9,9 @@ export interface StartTestResponse {
   test_sheet_id: number;
   remaining_time: number;
 }
+
+export interface TestSession {
+  session_id: number;
+  test_sheet_id: number;
+  remaining_time: number; // 남은 시간 (초 단위)
+}

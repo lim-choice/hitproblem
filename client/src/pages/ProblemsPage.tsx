@@ -31,6 +31,7 @@ import { useThemeStore } from "../hooks/useThemeStore";
 import { useProblemStore } from "../hooks/useProblemStore";
 import { jsonToMarkdown } from "../hooks/useMarkdown";
 import { executeUserQuery } from "../api/executionApi";
+import { postTestAnswer, finishTest } from "../api/testApi";
 import CodingProblem from "../components/problems/CodingProblem";
 import MultipleChoiceProblem from "../components/problems/MultipleChoiceProblem";
 import SubjectiveProblem from "../components/problems/SubjectiveProblem";
@@ -50,7 +51,7 @@ export default function ProblemsPage() {
     setExecutionResult,
   } = useProblemStore();
 
-  const { remainingTime, stopTimer } = useTest();
+  const { remainingTime, submitTest } = useTest();
 
   const { theme } = useThemeStore();
 
@@ -74,16 +75,11 @@ export default function ProblemsPage() {
 
   const deadline = dayjs().add(remainingTime, "second").valueOf();
 
-  const handleConfirmSubmission = () => {
-    api.success("TODO: 제출 구현...");
-
-    console.log(problems);
-
-    stopTimer();
-    navigate("/completion");
+  const handleConfirmSubmission = async () => {
+    submitTest(problems);
   };
 
-  const handlePrevProblem = () => {
+  const handlePrevProblem = async () => {
     console.log("handlePrevProblem problems", problems);
     console.log("handlePrevProblem", selectedProblem);
     if (!problems.length || !selectedProblem) return;

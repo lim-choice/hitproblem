@@ -4,18 +4,15 @@ import {
   fetchDuringTest,
   fetchStartTest,
   fetchCancelTest,
-  fetchSubmitTest,
+  finishTest,
+  postTestAnswer,
 } from "../api/testApi"; // ✅ API 호출 함수
 import { useNavigate } from "react-router-dom";
 import { useProblemStore } from "../hooks/useProblemStore";
 import { useAuthStore } from "../hooks/useAuthStore";
 import { useTestStore } from "../hooks/useTestStore"; // ✅ Zustand 전역 상태 관리 추가
-
-interface TestSession {
-  session_id: number;
-  test_sheet_id: number;
-  remaining_time: number; // 남은 시간 (초 단위)
-}
+import { TestSession } from "../interfaces/test";
+import { Problem } from "../interfaces/problems";
 
 export const useTest = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -44,9 +41,6 @@ export const useTest = () => {
           "remainingTime",
           String(activeTest.remaining_time)
         );
-
-        // ✅ 페이지 이동 후에도 타이머 유지
-        //startTimer();
       } else {
         console.log("???????????");
         setTestSession(null);
@@ -151,32 +145,36 @@ export const useTest = () => {
   }, [navigate, stopTimer]);
 
   // ✅ 시험 제출
-  const submitTest = useCallback(async () => {
-    if (!testSession) return;
+  const submitTest = useCallback(
+    async (problem: Problem[]) => {
+      if (!testSession) return;
 
-    setIsLoading(true);
-    try {
-      const response = await fetchSubmitTest(testSession.session_id);
+      setIsLoading(true);
+      try {
+        //const responseAnswer = await postTestAnswer(testSession, problem);
+        const responseTest = await finishTest(testSession);
 
-      if (response.success) {
-        setTestSession(null);
-        setRemainingTime(0);
-        sessionStorage.removeItem("remainingTime");
+        if (responseTest?.status == "success") {
+          setTestSession(null);
+          setRemainingTime(0);
+          sessionStorage.removeItem("remainingTime");
 
-        stopTimer(); // ✅ 타이머 정지
-        message.success("시험이 제출되었습니다!");
+          stopTimer(); // ✅ 타이머 정지
+          message.success("시험이 제출되었습니다!");
 
-        navigate("/test/result"); // ✅ 결과 페이지로 이동
-      } else {
-        throw new Error("시험 제출 실패");
+          navigate("/completion"); // ✅ 결과 페이지로 이동
+        } else {
+          throw new Error("시험 제출 실패");
+        }
+      } catch (error) {
+        console.error("[submitTest] 시험 제출 실패:", error);
+        message.error("시험을 제출하는 중 오류가 발생했습니다.");
+      } finally {
+        setIsLoading(false);
       }
-    } catch (error) {
-      console.error("[submitTest] 시험 제출 실패:", error);
-      message.error("시험을 제출하는 중 오류가 발생했습니다.");
-    } finally {
-      setIsLoading(false);
-    }
-  }, [testSession, stopTimer, navigate]);
+    },
+    [testSession, stopTimer, navigate]
+  );
 
   // ✅ 페이지 이동 후에도 진행 중인 시험 유지
   useEffect(() => {
