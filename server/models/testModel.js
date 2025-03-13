@@ -67,4 +67,24 @@ const makeNewTest = async (user_id, test_sheet_id, time_limit) => {
   }
 };
 
-module.exports = { getDuringTest, destroyTest, makeNewTest };
+// 시험 완료
+const completeTest = async (existingTestId, reason) => {
+  let connection;
+  try {
+    connection = await pool.getConnection();
+    await connection.query(
+      `UPDATE exam_sessions 
+       SET status = 'completed', ended_at = NOW(), cancel_reason = '${reason}' 
+       WHERE id = ?`,
+      [existingTestId]
+    );
+    return true;
+  } catch (error) {
+    console.error("[completeTest] 오류 발생:", error);
+    return false;
+  } finally {
+    if (connection) connection.release();
+  }
+};
+
+module.exports = { getDuringTest, destroyTest, makeNewTest, completeTest };

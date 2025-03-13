@@ -5,6 +5,8 @@ const {
   continueTest,
   getProblemListByUserTest,
   cancelTest,
+  finishTest,
+  postTestAnswer,
 } = require("../controllers/testController");
 
 const router = express.Router();
@@ -14,5 +16,7 @@ router.post("/startTest", startTest); // ✅ 시험 시작
 router.get("/ContinueTest", continueTest); // ✅ 시험 이어서 진행
 router.get("/problemListByTest", getProblemListByUserTest); // ✅ 시험지로 문제 가져오기
 router.get("/cancelTest", cancelTest);
+router.post("/finishTest", finishTest);
+router.post("/postTestAnswer", postTestAnswer);
 
 module.exports = router;
