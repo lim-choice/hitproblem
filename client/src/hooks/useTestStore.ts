@@ -10,16 +10,15 @@ interface TestState {
   testSession: TestSession | null;
   remainingTime: number;
   setTestSession: (session: TestSession | null) => void;
-  setRemainingTime: (time: number) => void;
+  setRemainingTime: (update: number | ((prev: number) => number)) => void; // 함수형 업데이트 & 직접 값 할당 지원
 }
 
-export const useTestStore = create<TestState>((set) => ({
+export const useTestStore = create<TestState>((set, get) => ({
   testSession: null,
-  remainingTime:
-    (() => {
-      const storedTime = sessionStorage.getItem("remainingTime");
-      return storedTime ? Number(storedTime) : null; // ❌ 0으로 초기화하면 안됨
-    })() || 3600, // ✅ 기본값: 1시간 (초 단위)
+  remainingTime: (() => {
+    const storedTime = sessionStorage.getItem("remainingTime");
+    return storedTime ? Number(storedTime) : 99999; // 기본값
+  })(),
 
   setTestSession: (session) => {
     set({ testSession: session });
@@ -33,11 +32,36 @@ export const useTestStore = create<TestState>((set) => ({
     }
   },
 
-  setRemainingTime: (time) => {
-    if (time > 0) {
-      // ✅ 0 이하 값이 저장되지 않도록 방어 코드 추가
-      set({ remainingTime: time });
-      sessionStorage.setItem("remainingTime", String(time));
-    }
+  setRemainingTime: (update) => {
+    set((state) => {
+      console.log("setRemainingTime 호출됨!");
+      console.log("현재 상태 >> ", state.remainingTime);
+      console.log("update 값 >> ", update);
+
+      // ✅ update가 undefined이면 기존 값을 유지
+      if (update === undefined) {
+        console.warn("🚨 setRemainingTime가 undefined로 호출됨!");
+        return { remainingTime: state.remainingTime }; // 기존 값 유지
+      }
+
+      // ✅ update가 함수면 실행하여 새 값 계산
+      const newTime =
+        typeof update === "function" ? update(state.remainingTime) : update;
+
+      console.log("계산된 newTime >> ", newTime);
+
+      if (isNaN(newTime) || newTime < 0) {
+        console.error("🚨 잘못된 값 감지:", newTime);
+        return { remainingTime: 0 }; // ✅ NaN 방지
+      }
+
+      if (newTime > 0) {
+        sessionStorage.setItem("remainingTime", String(newTime));
+      } else {
+        sessionStorage.removeItem("remainingTime");
+      }
+
+      return { remainingTime: newTime };
+    });
   },
 }));

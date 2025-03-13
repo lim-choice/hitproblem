@@ -1,8 +1,19 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import _ from "lodash";
 
-import { Alert, Button, Drawer, List, Tag, message } from "antd";
+import _ from "lodash";
+import dayjs from "dayjs";
+
+import {
+  Alert,
+  Button,
+  Drawer,
+  List,
+  Tag,
+  message,
+  Statistic,
+  Card,
+} from "antd";
 import {
   BookOutlined,
   PlayCircleOutlined,
@@ -10,6 +21,7 @@ import {
   LeftOutlined,
   RightOutlined,
   CheckOutlined,
+  ClockCircleOutlined,
 } from "@ant-design/icons";
 
 import AppLayout from "../components/common/AppLayout";
@@ -27,6 +39,8 @@ import { useTest } from "../hooks/useTest";
 
 export default function ProblemsPage() {
   const navigate = useNavigate();
+
+  const { Countdown } = Statistic;
 
   const {
     problems,
@@ -57,6 +71,8 @@ export default function ProblemsPage() {
     saveAnswerProblem(); // 현재 문제의 입력된 값을 저장
     setIsModalVisible(true);
   };
+
+  const deadline = dayjs().add(remainingTime, "second").valueOf();
 
   const handleConfirmSubmission = () => {
     api.success("TODO: 제출 구현...");
@@ -248,11 +264,40 @@ export default function ProblemsPage() {
             </span>
           </div>
 
-          <div>
-            <p>{remainingTime}</p>
-          </div>
           {/* 이전 문제 | 다음 문제 버튼 */}
-          <div style={{ display: "flex", gap: "8px" }}>
+          <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+            {/* 남은 시간 아이콘형 박스 */}
+            <Card
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                width: "100px", // 카드 크기 넓힘
+                height: "32px",
+                backgroundColor: theme === "dark" ? "#333" : "#f5f5f5",
+                borderRadius: "8px",
+                boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
+                padding: "4px 10px", // 패딩 추가하여 내부 정렬 안정화
+              }}
+            >
+              <div
+                style={{ display: "flex", alignItems: "center", gap: "6px" }}
+              >
+                <ClockCircleOutlined
+                  style={{ fontSize: "18px", color: "#faad14" }}
+                />
+                <Countdown
+                  value={deadline}
+                  format="HH:mm:ss"
+                  onFinish={() => api.warning("시간이 초과되었습니다!")}
+                  valueStyle={{
+                    fontSize: "16px",
+                    fontWeight: "bold",
+                    color: theme === "dark" ? "#ff4d4f" : "#fa541c",
+                  }}
+                />
+              </div>
+            </Card>
             <Button
               type="default"
               icon={<LeftOutlined />}

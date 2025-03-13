@@ -46,7 +46,7 @@ export const useTest = () => {
         );
 
         // ✅ 페이지 이동 후에도 타이머 유지
-        startTimer();
+        //startTimer();
       } else {
         console.log("???????????");
         setTestSession(null);
