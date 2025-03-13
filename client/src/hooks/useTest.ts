@@ -7,6 +7,7 @@ import {
 } from "../api/testApi"; // ✅ API 호출 함수
 import { useNavigate } from "react-router-dom";
 import { useProblemStore } from "../hooks/useProblemStore";
+import { useAuthStore } from "../hooks/useAuthStore";
 
 interface TestSession {
   session_id: number;
@@ -21,6 +22,7 @@ export const useTest = () => {
     return Number(sessionStorage.getItem("remainingTime")) || 0;
   });
 
+  const user = useAuthStore((state) => state.user);
   const timerRef = useRef<NodeJS.Timeout | null>(null); // ✅ 타이머 저장
 
   const { fetchProblemListByTestSheet } = useProblemStore();
@@ -29,20 +31,25 @@ export const useTest = () => {
   // ✅ 진행 중인 시험 확인
   const checkOngoingTest = useCallback(async () => {
     setIsLoading(true);
+    console.log("checkOngoingTest");
     try {
-      const response = await fetchDuringTest();
-      if (response.status === "success" && response.testList.length > 0) {
-        const activeTest = response.testList[0]; // ✅ 첫 번째 진행 중인 시험 가져오기
-        setTestSession(activeTest);
-        setRemainingTime(activeTest.remaining_time);
-        sessionStorage.setItem(
-          "remainingTime",
-          String(activeTest.remaining_time)
-        ); // ✅ 페이지 새로고침 대비
+      if (user) {
+        const response = await fetchDuringTest();
+        if (response.status === "success" && response.testList.length > 0) {
+          const activeTest = response.testList[0]; // ✅ 첫 번째 진행 중인 시험 가져오기
+          setTestSession(activeTest);
+          setRemainingTime(activeTest.remaining_time);
+          sessionStorage.setItem(
+            "remainingTime",
+            String(activeTest.remaining_time)
+          ); // ✅ 페이지 새로고침 대비
+        } else {
+          setTestSession(null);
+          setRemainingTime(0);
+          sessionStorage.removeItem("remainingTime");
+        }
       } else {
-        setTestSession(null);
-        setRemainingTime(0);
-        sessionStorage.removeItem("remainingTime");
+        console.log("로그인이 되어 있지 않은 유저");
       }
     } catch (error) {
       console.error("[useTest] 진행 중인 시험 확인 실패:", error);
@@ -50,7 +57,7 @@ export const useTest = () => {
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [user]);
 
   // ✅ 시험 시작
   const startTest = useCallback(
@@ -107,11 +114,11 @@ export const useTest = () => {
     }
   }, [navigate]);
 
-  // ✅ 훅이 실행될 때 자동으로 진행 중인 시험 확인
+  // ✅ 훅이 마운트 될 때 최초 한번 시험 확인
   useEffect(() => {
     console.log("useEffect >> checkOngoingTest");
     checkOngoingTest();
-  }, [checkOngoingTest]);
+  }, []);
 
   return {
     isLoading,
