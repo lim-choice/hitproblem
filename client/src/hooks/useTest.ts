@@ -109,6 +109,7 @@ export const useTest = () => {
 
   // ✅ 훅이 실행될 때 자동으로 진행 중인 시험 확인
   useEffect(() => {
+    console.log("useEffect >> checkOngoingTest");
     checkOngoingTest();
   }, [checkOngoingTest]);
 
