@@ -4,6 +4,7 @@ import "./App.css";
 import ProblemListPage from "./pages/ProblemListPage";
 import ProblemsPage from "./pages/ProblemsPage";
 import TestPage from "./pages/TestPage";
+import TestCompletionPage from "./pages/TestCompletionPage";
 import { HelmetProvider } from "react-helmet-async";
 
 function App() {
@@ -16,6 +17,7 @@ function App() {
           <Route path="/problemList" element={<ProblemListPage />} />
           <Route path="/problems" element={<ProblemsPage />} />
           <Route path="/test" element={<TestPage />} />
+          <Route path="/completion" element={<TestCompletionPage />} />
         </Routes>
       </BrowserRouter>
     </HelmetProvider>
