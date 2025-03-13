@@ -23,6 +23,7 @@ import CodingProblem from "../components/problems/CodingProblem";
 import MultipleChoiceProblem from "../components/problems/MultipleChoiceProblem";
 import SubjectiveProblem from "../components/problems/SubjectiveProblem";
 import usePreventRefresh from "../hooks/usePreventRefresh";
+import { useTest } from "../hooks/useTest";
 
 export default function ProblemsPage() {
   const navigate = useNavigate();
@@ -34,6 +35,8 @@ export default function ProblemsPage() {
     userCode,
     setExecutionResult,
   } = useProblemStore();
+
+  const { remainingTime } = useTest();
 
   const { theme } = useThemeStore();
 
@@ -245,6 +248,9 @@ export default function ProblemsPage() {
             </span>
           </div>
 
+          <div>
+            <p>{remainingTime}</p>
+          </div>
           {/* 이전 문제 | 다음 문제 버튼 */}
           <div style={{ display: "flex", gap: "8px" }}>
             <Button
