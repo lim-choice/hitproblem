@@ -4,6 +4,7 @@ import {
   fetchDuringTest,
   fetchStartTest,
   fetchCancelTest,
+  fetchSubmitTest,
 } from "../api/testApi"; // ✅ API 호출 함수
 import { useNavigate } from "react-router-dom";
 import { useProblemStore } from "../hooks/useProblemStore";
@@ -149,6 +150,34 @@ export const useTest = () => {
     }
   }, [navigate, stopTimer]);
 
+  // ✅ 시험 제출
+  const submitTest = useCallback(async () => {
+    if (!testSession) return;
+
+    setIsLoading(true);
+    try {
+      const response = await fetchSubmitTest(testSession.session_id);
+
+      if (response.success) {
+        setTestSession(null);
+        setRemainingTime(0);
+        sessionStorage.removeItem("remainingTime");
+
+        stopTimer(); // ✅ 타이머 정지
+        message.success("시험이 제출되었습니다!");
+
+        navigate("/test/result"); // ✅ 결과 페이지로 이동
+      } else {
+        throw new Error("시험 제출 실패");
+      }
+    } catch (error) {
+      console.error("[submitTest] 시험 제출 실패:", error);
+      message.error("시험을 제출하는 중 오류가 발생했습니다.");
+    } finally {
+      setIsLoading(false);
+    }
+  }, [testSession, stopTimer, navigate]);
+
   // ✅ 페이지 이동 후에도 진행 중인 시험 유지
   useEffect(() => {
     checkOngoingTest();
@@ -161,6 +190,7 @@ export const useTest = () => {
     checkOngoingTest,
     startTest,
     cancelTest,
+    submitTest,
   };
 };
 

@@ -33,3 +33,14 @@ export const fetchCancelTest = async () => {
   console.log(`fetchCancelTest res: `, response);
   return response.data;
 };
+
+// 시험 제출 로직
+export const fetchSubmitTest = async (sessionId: number) => {
+  try {
+    const response = await api.post(`/test/submit`, { session_id: sessionId });
+    return response.data;
+  } catch (error) {
+    console.error("[fetchSubmitTest] 시험 제출 실패:", error);
+    throw error;
+  }
+};
