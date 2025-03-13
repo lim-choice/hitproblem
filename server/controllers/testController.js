@@ -257,12 +257,25 @@ const postTestAnswer = async (req, res) => {
     const userId = user.id;
     const session_id = testSession?.id ?? -1;
 
-    // 진행중인 시험이 있는지 확인
-    const testList = await getDuringTest(userId, session_id);
+    console.log("userId: ", userId, ", session_id: ", session_id);
+
+    // 진행중인 시험이 있는지 확인 ==> testList가 98이 나옴
+    const testList = await getDuringTest(userId, null);
+    console.log("testList: ", testList);
     const ongoingTest = testList[0];
     if (!ongoingTest) {
       return res.status(404).json({ message: "진행 중인 시험이 없습니다." });
     }
+
+    const testSheetId = ongoingTest.id;
+    if (session_id !== testSheetId) {
+      return res
+        .status(404)
+        .json({ message: "진행중인 시험과 제출 시험이 다릅니다." });
+    }
+
+    //문제 쿼리 적용
+    //
 
     res.json({
       status: "success",
