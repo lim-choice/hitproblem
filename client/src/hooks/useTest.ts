@@ -151,7 +151,7 @@ export const useTest = () => {
 
       setIsLoading(true);
       try {
-        //const responseAnswer = await postTestAnswer(testSession, problem);
+        const responseAnswer = await postTestAnswer(testSession, problem);
         const responseTest = await finishTest(testSession);
 
         if (responseTest?.status == "success") {
