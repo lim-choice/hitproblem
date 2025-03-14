@@ -6,6 +6,7 @@ const {
   makeNewTest,
   completeTest,
   saveExamResultsBatch,
+  getSavedAnswers,
 } = require("../models/testModel");
 const { getTestSheetTime } = require("../models/problemModel");
 const { fetchProblemList } = require("./problemController");
@@ -344,6 +345,55 @@ const finishTest = async (req, res) => {
   }
 };
 
+//저장된 시험 답안 불러오기
+const fetchSavedAnswers = async (req, res) => {
+  const token = req.cookies.token; // ✅ 쿠키에서 JWT 가져오기
+  const { testSession } = req.body;
+
+  console.log("finishTest");
+  console.log(req.body);
+
+  if (!token) {
+    return res.status(401).json({ message: "로그인이 필요합니다." });
+  }
+
+  try {
+    const decoded = verifyToken(token); // ✅ 토큰 해독 (유저 정보 포함)
+
+    // DB에서 유저 정보 조회
+    const user = await db.getUserById(decoded.id);
+    if (!user) {
+      return res.status(404).json({ message: "유저 정보를 찾을 수 없습니다." });
+    }
+
+    const userId = user.id;
+    const session_id = testSession?.id ?? -1;
+
+    console.log("userId: ", userId, ", session_id: ", session_id);
+
+    // 진행중인 시험이 있는지 확인 ==> testList가 98이 나옴
+    const testList = await getDuringTest(userId, null);
+    console.log("testList: ", testList);
+    const ongoingTest = testList[0];
+    if (!ongoingTest) {
+      return res.status(404).json({ message: "진행 중인 시험이 없습니다." });
+    }
+
+    const testSheetId = ongoingTest.id;
+    if (session_id !== testSheetId) {
+      return res
+        .status(404)
+        .json({ message: "진행중인 시험과 제출 시험이 다릅니다." });
+    }
+
+    const savedAnswers = await getSavedAnswers(session_id);
+    return res.json({ status: "success", savedAnswers });
+  } catch (error) {
+    console.error("[fetchSavedAnswers] 오류 발생:", error);
+    return res.status(500).json({ message: "서버 오류 발생" });
+  }
+};
+
 module.exports = {
   isDuringTest,
   startTest,
@@ -352,4 +402,5 @@ module.exports = {
   getProblemListByUserTest,
   postTestAnswer,
   finishTest,
+  fetchSavedAnswers,
 };

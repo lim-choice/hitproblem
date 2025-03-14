@@ -129,10 +129,28 @@ const saveExamResultsBatch = async (testSession, problems) => {
   }
 };
 
+const getSavedAnswers = async (examSessionId) => {
+  try {
+    const query = `
+      SELECT problem_id, user_answer 
+      FROM exam_results 
+      WHERE exam_session_id = ?;
+    `;
+
+    const [results] = await pool.query(query, [examSessionId]);
+
+    return results; // 문제 ID별 유저 답변 목록 반환
+  } catch (error) {
+    console.error("getSavedAnswers 오류:", error);
+    throw error;
+  }
+};
+
 module.exports = {
   getDuringTest,
   destroyTest,
   makeNewTest,
   completeTest,
   saveExamResultsBatch,
+  getSavedAnswers,
 };
