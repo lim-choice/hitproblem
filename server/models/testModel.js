@@ -232,8 +232,15 @@ const setAnswerDataResult = async (examSessionId) => {
 
             [result] = await pool.query(subQuery);
             serverAnswer = result[0]["answer_index"];
-            console.log("multiple-choice serverAnswer : ", serverAnswer);
             isCorrect = serverAnswer == userAnswer ? 1 : 0;
+            console.log(
+              "multiple-choice serverAnswer : ",
+              serverAnswer,
+              " userAnswer : ",
+              userAnswer,
+              " isCorrect : ",
+              isCorrect
+            );
             break;
           case "coding":
             subQuery = `
@@ -246,8 +253,15 @@ const setAnswerDataResult = async (examSessionId) => {
 
             [result] = await pool.query(subQuery);
             serverAnswer = result[0]["answer"];
-            console.log("coding serverAnswer : ", serverAnswer);
             isCorrect = serverAnswer == userAnswer ? 1 : 0;
+            console.log(
+              "coding serverAnswer : ",
+              serverAnswer,
+              " userAnswer : ",
+              userAnswer,
+              " isCorrect : ",
+              isCorrect
+            );
             break;
           case "subjective":
             subQuery = `
@@ -264,12 +278,20 @@ const setAnswerDataResult = async (examSessionId) => {
 
             //구분자를 통해 정답을 찾습니다.
             const splitAnswer = serverAnswer.split(separator);
-            console.log("subjective splitAnswer : ", splitAnswer);
             isCorrect = splitAnswer.includes(userAnswer) ? 1 : 0;
+            console.log(
+              "subjective splitAnswer : ",
+              splitAnswer,
+              " userAnswer : ",
+              userAnswer,
+              " isCorrect : ",
+              isCorrect
+            );
             break;
           default:
             console.log("정의 되지 않은 코드 발견");
-            return false;
+            isCorrect = false;
+            break;
         }
 
         //정답 업데이트
