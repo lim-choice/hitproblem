@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { TestSession } from "../interfaces/test";
 
 interface TestState {
   testSession: TestSession | null;
@@ -29,8 +30,8 @@ export const useTestStore = create<TestState>((set, get) => ({
   setRemainingTime: (update) => {
     set((state) => {
       console.log("setRemainingTime 호출됨!");
-      console.log("현재 상태 >> ", state.remainingTime);
-      console.log("update 값 >> ", update);
+      console.log("setRemainingTime 현재 상태 >> ", state.remainingTime);
+      console.log("setRemainingTime update 값 >> ", update);
 
       // ✅ update가 undefined이면 기존 값을 유지
       if (update === undefined) {
@@ -42,7 +43,7 @@ export const useTestStore = create<TestState>((set, get) => ({
       const newTime =
         typeof update === "function" ? update(state.remainingTime) : update;
 
-      console.log("계산된 newTime >> ", newTime);
+      console.log("setRemainingTime 계산된 newTime >> ", newTime);
 
       if (isNaN(newTime) || newTime < 0) {
         console.error("🚨 잘못된 값 감지:", newTime);

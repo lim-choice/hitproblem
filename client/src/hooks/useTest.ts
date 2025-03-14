@@ -16,7 +16,7 @@ import { Problem } from "../interfaces/problems";
 
 export const useTest = () => {
   const [isLoading, setIsLoading] = useState(false);
-  const timerRef = useRef<NodeJS.Timeout | null>(null); // ✅ 타이머 저장
+  const testTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   // ✅ Zustand에서 전역 상태 관리
   const { testSession, setTestSession, remainingTime, setRemainingTime } =
@@ -60,27 +60,44 @@ export const useTest = () => {
   const startTimer = useCallback(() => {
     console.log("⏳ 타이머 시작! <startTimer> 초기 남은 시간:", remainingTime);
 
-    if (timerRef.current) return; // ✅ 중복 실행 방지
-    console.log("⏳ 타이머 시작! 초기 남은 시간:", remainingTime);
-    timerRef.current = setInterval(() => {
-      setRemainingTime((prev) => {
-        console.log("⏳ 현재 남은 시간:", prev);
-        if (prev <= 1) {
-          clearInterval(timerRef.current!);
-          timerRef.current = null;
-          message.warning("시험 시간이 종료되었습니다.");
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
+    if (!testTimerRef.current) {
+      console.log("⏳ 타이머 시작! 초기 남은 시간:", remainingTime);
+
+      //시험 시작 타이머
+      testTimerRef.current = setInterval(() => {
+        setRemainingTime((prev) => {
+          console.log("⏳ 현재 남은 시험 시간:", prev);
+
+          if (prev > 0 && prev % 10 == 0) {
+            const { testSession } = useTestStore.getState();
+            const { problems } = useProblemStore.getState();
+            console.log(
+              `👩 시험 임시 저장 제출 (${prev})`,
+              testSession,
+              problems
+            );
+            if (testSession && problems) {
+              postTestAnswer(testSession, problems);
+            }
+          }
+
+          if (prev <= 1) {
+            clearInterval(testTimerRef.current!);
+            testTimerRef.current = null;
+            message.warning("시험 시간이 종료되었습니다.");
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    }
   }, [setRemainingTime]); // ✅ `remainingTime`을 의존성에서 제거
 
   // ✅ 타이머 정지
   const stopTimer = useCallback(() => {
-    if (timerRef.current) {
-      clearInterval(timerRef.current);
-      timerRef.current = null;
+    if (testTimerRef.current) {
+      clearInterval(testTimerRef.current);
+      testTimerRef.current = null;
       console.log("🛑 타이머 중지됨");
     }
   }, []);
@@ -176,6 +193,24 @@ export const useTest = () => {
     [testSession, stopTimer, navigate]
   );
 
+  // 시험 문제 임시 저장
+  const saveTest = useCallback(
+    async (problem: Problem[]) => {
+      if (!testSession) return;
+
+      setIsLoading(true);
+      try {
+        await postTestAnswer(testSession, problem);
+      } catch (error) {
+        console.error("[saveTest] 시험 저장 실패:", error);
+        message.error("시험을 저장 하는 중 오류가 발생했습니다.");
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [testSession]
+  );
+
   // ✅ 페이지 이동 후에도 진행 중인 시험 유지
   useEffect(() => {
     checkOngoingTest();
@@ -190,6 +225,7 @@ export const useTest = () => {
     stopTimer,
     cancelTest,
     submitTest,
+    saveTest,
   };
 };
 

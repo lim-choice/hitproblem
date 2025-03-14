@@ -63,7 +63,7 @@ export const postTestAnswer = async (
     });
     return response.data;
   } catch (error) {
-    console.error("[finishTest] 시험 제출 실패:", error);
+    console.error("[postTestAnswer] 시험 제출 실패:", error);
     throw error;
   }
 };
