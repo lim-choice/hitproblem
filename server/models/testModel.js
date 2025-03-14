@@ -58,7 +58,7 @@ const makeNewTest = async (user_id, test_sheet_id, time_limit) => {
       [user_id, test_sheet_id, time_limit]
     );
 
-    return result.insertId; // ✅ `insertId` 반환하여 `startTest`에서 사용 가능하게 함.
+    return result.insertId; // `insertId` 반환하여 `startTest`에서 사용 가능하게 함.
   } catch (error) {
     console.error("[makeNewTest] 오류 발생:", error);
     throw error;
@@ -68,15 +68,17 @@ const makeNewTest = async (user_id, test_sheet_id, time_limit) => {
 };
 
 // 시험 완료
-const completeTest = async (existingTestId, reason) => {
+const completeTest = async (existingTestId, reason = null) => {
   let connection;
   try {
     connection = await pool.getConnection();
     await connection.query(
       `UPDATE exam_sessions 
-       SET status = 'completed', ended_at = NOW(), cancel_reason = '${reason}' 
+       SET status = 'completed', 
+           ended_at = NOW(), 
+           cancel_reason = ? 
        WHERE id = ?`,
-      [existingTestId]
+      [reason, existingTestId] // Prepared Statement
     );
     return true;
   } catch (error) {
@@ -87,4 +89,50 @@ const completeTest = async (existingTestId, reason) => {
   }
 };
 
-module.exports = { getDuringTest, destroyTest, makeNewTest, completeTest };
+// 시험 문제 제출 (배치)
+const saveExamResultsBatch = async (testSession, problems) => {
+  if (problems.length === 0) return;
+
+  let connection;
+  try {
+    connection = await pool.getConnection();
+    await connection.beginTransaction(); // 트랜잭션 시작
+
+    const values = problems.map((p) => [
+      testSession.id,
+      p.problem_type,
+      p.problem_id,
+      p.answer ?? "", // NULL 방지 (빈 문자열)
+      p.correct_answer ?? "", // NULL 방지
+      0, // 기본적으로 오답 처리
+    ]);
+
+    const placeholders = problems.map(() => "(?, ?, ?, ?, ?, ?)").join(", ");
+
+    const query = `
+      INSERT INTO exam_results (exam_session_id, problem_type, problem_id, user_answer, correct_answer, is_correct)
+      VALUES ${placeholders}
+      ON DUPLICATE KEY UPDATE
+      user_answer = VALUES(user_answer),
+      correct_answer = VALUES(correct_answer),
+      is_correct = VALUES(is_correct);
+    `;
+
+    await connection.query(query, values.flat()); // 한 번에 배치 INSERT 실행
+    await connection.commit(); // 트랜잭션 커밋
+    console.log(`${problems.length}개의 문제 저장 완료`);
+  } catch (error) {
+    if (connection) await connection.rollback(); // 오류 발생 시 롤백
+    console.error(`시험 결과 저장 중 오류 발생:`, error);
+  } finally {
+    if (connection) connection.release();
+  }
+};
+
+module.exports = {
+  getDuringTest,
+  destroyTest,
+  makeNewTest,
+  completeTest,
+  saveExamResultsBatch,
+};

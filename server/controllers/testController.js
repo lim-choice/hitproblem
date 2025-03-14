@@ -5,6 +5,7 @@ const {
   destroyTest,
   makeNewTest,
   completeTest,
+  saveExamResultsBatch,
 } = require("../models/testModel");
 const { getTestSheetTime } = require("../models/problemModel");
 const { fetchProblemList } = require("./problemController");
@@ -275,7 +276,7 @@ const postTestAnswer = async (req, res) => {
     }
 
     //문제 쿼리 적용
-    //
+    saveExamResultsBatch(testSession, problem);
 
     res.json({
       status: "success",
