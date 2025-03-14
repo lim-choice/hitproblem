@@ -6,10 +6,11 @@ const {
   makeNewTest,
   completeTest,
   saveExamResultsBatch,
-  getSavedAnswers,
+  getLoadSavedTestData,
 } = require("../models/testModel");
 const { getTestSheetTime } = require("../models/problemModel");
 const { fetchProblemList } = require("./problemController");
+const { response } = require("express");
 
 const isDuringTest = async (req, res) => {
   let token = req.cookies.token; // ✅ 쿠키에서 JWT 가져오기
@@ -346,12 +347,12 @@ const finishTest = async (req, res) => {
 };
 
 //저장된 시험 답안 불러오기
-const fetchSavedAnswers = async (req, res) => {
+const fetchLoadSavedTest = async (req, res) => {
   const token = req.cookies.token; // ✅ 쿠키에서 JWT 가져오기
-  const { testSession } = req.body;
+  const { id } = req.body;
 
-  console.log("finishTest");
-  console.log(req.body);
+  console.log(`body: `, req.body);
+  console.log(`session: `, id);
 
   if (!token) {
     return res.status(401).json({ message: "로그인이 필요합니다." });
@@ -367,9 +368,6 @@ const fetchSavedAnswers = async (req, res) => {
     }
 
     const userId = user.id;
-    const session_id = testSession?.id ?? -1;
-
-    console.log("userId: ", userId, ", session_id: ", session_id);
 
     // 진행중인 시험이 있는지 확인 ==> testList가 98이 나옴
     const testList = await getDuringTest(userId, null);
@@ -380,14 +378,62 @@ const fetchSavedAnswers = async (req, res) => {
     }
 
     const testSheetId = ongoingTest.id;
-    if (session_id !== testSheetId) {
+    if (id !== testSheetId) {
       return res
         .status(404)
         .json({ message: "진행중인 시험과 제출 시험이 다릅니다." });
     }
 
-    const savedAnswers = await getSavedAnswers(session_id);
-    return res.json({ status: "success", savedAnswers });
+    // const savedAnswers = await getSavedAnswers(session_id);
+
+    /*
+    테스트 정보랑 이거저거 전부 만들어서 줘야 함.
+
+    response = testSession: { id: 132 }
+    problem: [
+      test_sheet_id: 1,
+      problem_type: 'multiple-choice',
+      problem_id: 1,
+      title: '특정 테이블에서 사원칼럼, 부서칼럼만 추출하는 경우에 DISK I/O를 경감할 수 있는 반정규화 방법은 무엇인가? ',
+      difficulty: 'Easy',
+      engine_type: 'mysql',
+      content: '',
+      choices: [Array],
+      index: 1
+    ]
+
+    */
+
+    //문제 목록 가져오기
+    const problemList = await getLoadSavedTestData(id);
+    if (!problemList) {
+      return null;
+    }
+    let index = 0;
+    const formattedProblemList = problemList.map((problem, index) =>
+      Object.entries({
+        ...problem,
+        index: index + 1,
+        answer: problem.user_answer,
+        choices: problem.choices
+          ? problem.choices.split("§").map((choice) => choice.trim())
+          : [],
+      }).reduce((acc, [key, value]) => {
+        if (key !== "user_answer") acc[key] = value; // ✅ user_answer 제외하고 새로운 객체 생성
+        return acc;
+      }, {})
+    );
+
+    console.log(formattedProblemList);
+    return res.json({
+      status: "success",
+      data: {
+        testSession: {
+          id: id,
+        },
+        problems: formattedProblemList,
+      },
+    });
   } catch (error) {
     console.error("[fetchSavedAnswers] 오류 발생:", error);
     return res.status(500).json({ message: "서버 오류 발생" });
@@ -402,5 +448,5 @@ module.exports = {
   getProblemListByUserTest,
   postTestAnswer,
   finishTest,
-  fetchSavedAnswers,
+  fetchLoadSavedTest,
 };

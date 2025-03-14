@@ -112,7 +112,7 @@ const getProblemListByTestSheet = async (id) => {
           -- 객관식(multiple-choice) 문제의 선택지 가져오기
           CASE 
               WHEN tq.problem_type = 'multiple-choice' 
-              THEN GROUP_CONCAT(mco.choice_text ORDER BY mco.choice_index ASC SEPARATOR ', ')
+              THEN GROUP_CONCAT(mco.choice_text ORDER BY mco.choice_index ASC SEPARATOR '§ ')
               ELSE NULL
           END AS choices
 

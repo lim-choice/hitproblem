@@ -129,19 +129,64 @@ const saveExamResultsBatch = async (testSession, problems) => {
   }
 };
 
-const getSavedAnswers = async (examSessionId) => {
+const getLoadSavedTestData = async (examSessionId) => {
   try {
     const query = `
-      SELECT problem_id, user_answer 
-      FROM exam_results 
-      WHERE exam_session_id = ?;
+      SELECT 
+          tq.test_sheet_id,
+          tq.problem_type,
+          CASE 
+              WHEN tq.problem_type = 'subjective' THEN sp.id
+              WHEN tq.problem_type = 'coding' THEN cp.id
+              ELSE mcp.id
+          END AS problem_id,
+          CASE 
+              WHEN tq.problem_type = 'subjective' THEN sp.title
+              WHEN tq.problem_type = 'coding' THEN cp.title
+              ELSE mcp.title
+          END AS title,
+          CASE 
+              WHEN tq.problem_type = 'subjective' THEN sp.difficulty
+              WHEN tq.problem_type = 'coding' THEN cp.difficulty
+              ELSE mcp.difficulty
+          END AS difficulty,
+          CASE 
+              WHEN tq.problem_type = 'subjective' THEN sp.engine_type
+              WHEN tq.problem_type = 'coding' THEN cp.engine_type
+              ELSE mcp.engine_type
+          END AS engine_type,
+          CASE 
+              WHEN tq.problem_type = 'subjective' THEN sp.content
+              WHEN tq.problem_type = 'coding' THEN cp.content
+              ELSE mcp.content
+          END AS content,
+          CASE 
+              WHEN tq.problem_type = 'multiple-choice' 
+              THEN GROUP_CONCAT(mco.choice_text ORDER BY mco.choice_index ASC SEPARATOR '§ ')
+              ELSE NULL
+          END AS choices,
+          er.user_answer
+
+      FROM exam_sessions es
+      JOIN test_sheets ts ON es.test_sheet_id = ts.id
+      JOIN test_sheet_questions tq ON ts.id = tq.test_sheet_id
+      LEFT JOIN subjective_problems sp ON tq.problem_type = 'subjective' AND tq.problem_id = sp.id
+      LEFT JOIN coding_problems cp ON tq.problem_type = 'coding' AND tq.problem_id = cp.id
+      LEFT JOIN multiple_choice_problems mcp ON tq.problem_type = 'multiple-choice' AND tq.problem_id = mcp.id
+      LEFT JOIN multiple_choice_options mco ON mcp.id = mco.problem_id
+      LEFT JOIN exam_results er 
+          ON es.id = er.exam_session_id 
+          AND tq.problem_id = er.problem_id 
+          AND tq.problem_type = er.problem_type 
+
+      WHERE es.id = ? 
+      GROUP BY tq.id, er.user_answer;
     `;
 
     const [results] = await pool.query(query, [examSessionId]);
-
-    return results; // 문제 ID별 유저 답변 목록 반환
+    return results;
   } catch (error) {
-    console.error("getSavedAnswers 오류:", error);
+    console.error("getExamSessionDetails 오류:", error);
     throw error;
   }
 };
@@ -152,5 +197,5 @@ module.exports = {
   makeNewTest,
   completeTest,
   saveExamResultsBatch,
-  getSavedAnswers,
+  getLoadSavedTestData,
 };

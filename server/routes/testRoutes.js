@@ -7,7 +7,7 @@ const {
   cancelTest,
   finishTest,
   postTestAnswer,
-  fetchSavedAnswers,
+  fetchLoadSavedTest,
 } = require("../controllers/testController");
 
 const router = express.Router();
@@ -19,6 +19,6 @@ router.get("/problemListByTest", getProblemListByUserTest); // ✅ 시험지로 
 router.get("/cancelTest", cancelTest);
 router.post("/finishTest", finishTest);
 router.post("/postTestAnswer", postTestAnswer);
-router.get("/getSavedAnswers", fetchSavedAnswers);
+router.post("/fetchLoadSavedTest", fetchLoadSavedTest);
 
 module.exports = router;

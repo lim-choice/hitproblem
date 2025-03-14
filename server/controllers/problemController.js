@@ -38,7 +38,7 @@ const fetchProblemList = async (testSheetId) => {
       ...problem,
       index: ++index,
       choices: problem.choices
-        ? problem.choices.split(",").map((choice) => choice.trim())
+        ? problem.choices.split("§").map((choice) => choice.trim())
         : [],
     }));
   } catch (error) {
