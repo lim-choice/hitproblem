@@ -19,7 +19,7 @@ const TestPage: React.FC = () => {
     fetchTestSheetList,
     fetchProblemListByTestSheet,
   } = useProblemStore();
-  const { testSession, startTest, cancelTest } = useTest();
+  const { testSession, startTest, cancelTest, LoadTest } = useTest();
   const [serverError, setServerError] = useState(false);
   const [isFetching, setIsFetching] = useState(false); // API 요청 중인지 확인
 
@@ -76,9 +76,10 @@ const TestPage: React.FC = () => {
   };
 
   const handleContinueExam = async (result: string) => {
-    //
     if (result == "Y") {
-      //
+      //문제 가져오기
+      console.log(testSession);
+      LoadTest();
     } else {
       //시험 취소 처리
       await handleCancelExam("Y");

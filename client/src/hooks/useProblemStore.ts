@@ -16,6 +16,7 @@ interface ProblemState {
   error: string | null;
   fetchTestSheetList: () => Promise<void>;
   fetchProblemListByTestSheet: (id: number) => Promise<void>;
+  fetchProblemList: (problems: Problem[]) => Promise<void>;
   fetchProblemsByTopic: (topic: string) => Promise<void>;
   fetchSingleProblem: (id: number) => Promise<void>;
   setSelectedProblem: (problem: Problem) => void;
@@ -74,6 +75,23 @@ export const useProblemStore = create<ProblemState>((set) => ({
     set({ loading: true, error: null });
     try {
       const problems = await fetchProblemListByTestSheet(id);
+      set({
+        problems,
+        selectedProblem: problems.length > 0 ? problems[0] : null,
+      });
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
+      set({ error: `문제 목록을 불러오는 중 오류 발생 (${errorMessage})` });
+    } finally {
+      set({ loading: false });
+    }
+  },
+
+  // 문제를 강제로 할당
+  fetchProblemList: async (problems: Problem[]) => {
+    set({ loading: true, error: null });
+    try {
       set({
         problems,
         selectedProblem: problems.length > 0 ? problems[0] : null,

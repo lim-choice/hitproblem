@@ -3,6 +3,7 @@ import { ApiResponse } from "../interfaces/api";
 import {
   StartTestRequest,
   StartTestResponse,
+  LoadSavedTestResponse,
   TestSession,
 } from "../interfaces/test";
 import { Problem } from "../interfaces/problems";
@@ -52,6 +53,7 @@ export const finishTest = async (testSession: TestSession) => {
   }
 };
 
+//시험 문제 저장
 export const postTestAnswer = async (
   testSession: TestSession,
   problem: Problem[]
@@ -66,4 +68,15 @@ export const postTestAnswer = async (
     console.error("[postTestAnswer] 시험 제출 실패:", error);
     throw error;
   }
+};
+
+//시험 불러오기
+export const fetchLoadSavedTest = async (
+  testSession: TestSession
+): Promise<ApiResponse<LoadSavedTestResponse>> => {
+  const apiUrl = "/test/fetchLoadSavedTest";
+  console.log(`fetchLoadSavedTest -- apiUrl: ${apiUrl}, data: `, testSession);
+  const response = await api.post(apiUrl, testSession);
+  console.log(`fetchLoadSavedTest res: `, response);
+  return response.data;
 };

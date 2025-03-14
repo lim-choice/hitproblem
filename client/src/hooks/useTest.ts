@@ -6,6 +6,7 @@ import {
   fetchCancelTest,
   finishTest,
   postTestAnswer,
+  fetchLoadSavedTest,
 } from "../api/testApi"; // ✅ API 호출 함수
 import { useNavigate } from "react-router-dom";
 import { useProblemStore } from "../hooks/useProblemStore";
@@ -23,7 +24,7 @@ export const useTest = () => {
     useTestStore();
 
   const user = useAuthStore((state) => state.user);
-  const { fetchProblemListByTestSheet } = useProblemStore();
+  const { fetchProblemListByTestSheet, fetchProblemList } = useProblemStore();
   const navigate = useNavigate();
 
   // ✅ 진행 중인 시험 확인
@@ -211,6 +212,43 @@ export const useTest = () => {
     [testSession]
   );
 
+  //시험지 불러오기
+  const LoadTest = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      console.log("LoadTest");
+      if (!testSession) return;
+
+      const response = await fetchLoadSavedTest(testSession);
+      if (response.status == "success") {
+        const problems = response.data.problems;
+
+        const newTestSession = {
+          session_id: response.session_id,
+          test_sheet_id: 1, //TODO: 수정 필요
+          remaining_time: 9999,
+        };
+        setTestSession(newTestSession);
+        setRemainingTime(newTestSession.remaining_time);
+        sessionStorage.setItem(
+          "remainingTime",
+          String(newTestSession.remaining_time)
+        );
+        navigate("/problems");
+        await fetchProblemList(problems);
+        message.success("시험이 시작되었습니다!");
+        startTimer(); // ✅ 시험 시작 후 타이머 실행
+      } else {
+        throw new Error("시험 시작 실패");
+      }
+    } catch (error) {
+      console.error("[startTest] 시험 시작 실패:", error);
+      message.error("시험을 시작하는 중 오류가 발생했습니다.");
+    } finally {
+      setIsLoading(false);
+    }
+  }, [testSession]);
+
   // ✅ 페이지 이동 후에도 진행 중인 시험 유지
   useEffect(() => {
     checkOngoingTest();
@@ -226,6 +264,7 @@ export const useTest = () => {
     cancelTest,
     submitTest,
     saveTest,
+    LoadTest,
   };
 };
 
