@@ -7,6 +7,7 @@ const {
   completeTest,
   saveExamResultsBatch,
   getLoadSavedTestData,
+  setAnswerDataResult,
 } = require("../models/testModel");
 const { getTestSheetTime } = require("../models/problemModel");
 const { fetchProblemList } = require("./problemController");
@@ -337,6 +338,12 @@ const finishTest = async (req, res) => {
         status: "success",
         message: "시험 제출 완료",
       });
+
+      // 😜 시험 채점을 진행합니다.
+      console.log("시험 문제 제출 후 결과 채점! 채점 번호 :", testSheetId);
+      const result2 = await setAnswerDataResult(testSheetId);
+      console.log("등록 결과 : ", result2);
+      //************************************ */
     } else {
       return res.status(500).json({ message: "진행중인 시험이 없습니다." });
     }

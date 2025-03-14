@@ -191,6 +191,106 @@ const getLoadSavedTestData = async (examSessionId) => {
   }
 };
 
+// 😊 hi
+const setAnswerDataResult = async (examSessionId) => {
+  try {
+    const separator = "|";
+    //COMMENT : 바꾸셈
+    // const separator = "§";
+
+    const query = `
+      SELECT 
+        problem_type,
+        problem_id,
+        user_answer
+      FROM exam_results
+      WHERE exam_session_id = ${examSessionId}
+      `;
+
+    console.log("query ", query);
+
+    const [results] = await pool.query(query);
+
+    console.log(results);
+    //배열은 Promise.all 로 리턴 해줘야 pending 으로 안뜸 (COMMENT : 필요한가??)
+    return await Promise.all(
+      results.map(async (item) => {
+        let result, serverAnswer, subQuery, isCorrect;
+        const userAnswer = item["user_answer"];
+        const problemId = item["problem_id"];
+        const problemType = item["problem_type"];
+
+        switch (problemType) {
+          case "multiple-choice":
+            subQuery = `
+            SELECT
+              answer_index
+            FROM
+              multiple_choice_problems
+              WHERE id = ${problemId}
+          `;
+
+            [result] = await pool.query(subQuery);
+            serverAnswer = result[0]["answer_index"];
+            console.log("multiple-choice serverAnswer : ", serverAnswer);
+            isCorrect = serverAnswer == userAnswer ? 1 : 0;
+            break;
+          case "coding":
+            subQuery = `
+            SELECT
+              answer
+            FROM
+              coding_problems
+              WHERE id = ${problemId}
+          `;
+
+            [result] = await pool.query(subQuery);
+            serverAnswer = result[0]["answer"];
+            console.log("coding serverAnswer : ", serverAnswer);
+            isCorrect = serverAnswer == userAnswer ? 1 : 0;
+            break;
+          case "subjective":
+            subQuery = `
+            SELECT
+              answer
+            FROM
+              subjective_problems
+              WHERE id = ${problemId}
+          `;
+
+            [result] = await pool.query(subQuery);
+            serverAnswer = result[0]["answer"];
+            console.log("subjective serverAnswer : ", serverAnswer);
+
+            //구분자를 통해 정답을 찾습니다.
+            const splitAnswer = serverAnswer.split(separator);
+            console.log("subjective splitAnswer : ", splitAnswer);
+            isCorrect = splitAnswer.includes(userAnswer) ? 1 : 0;
+            break;
+          default:
+            console.log("정의 되지 않은 코드 발견");
+            return false;
+        }
+
+        //정답 업데이트
+        subQuery = `UPDATE exam_results 
+                          SET 
+                            is_correct = ${isCorrect} 
+                          WHERE 
+                            exam_session_id=${examSessionId} AND
+                            problem_type="${problemType}" AND
+                            problem_id=${problemId}`;
+
+        await pool.query(subQuery);
+        return isCorrect;
+      })
+    );
+  } catch (error) {
+    console.error("getExamSessionDetails 오류:", error);
+    throw error;
+  }
+};
+
 module.exports = {
   getDuringTest,
   destroyTest,
@@ -198,4 +298,5 @@ module.exports = {
   completeTest,
   saveExamResultsBatch,
   getLoadSavedTestData,
+  setAnswerDataResult,
 };
