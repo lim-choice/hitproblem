@@ -15,9 +15,10 @@ const { Content } = Layout;
 interface AppLayoutProps {
   title: string;
   children: React.ReactNode;
+  header?: React.ReactNode;
 }
 
-const AppLayout: React.FC<AppLayoutProps> = ({ title, children }) => {
+const AppLayout: React.FC<AppLayoutProps> = ({ title, children, header }) => {
   const { theme } = useThemeStore(); //  Zustand에서 테마 관리
   const { isBugModalOpen, toggleBugModal } = useUIStore(); //  Zustand에서 UI 관리
 
@@ -42,7 +43,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({ title, children }) => {
         }}
       >
         {/* 공통 헤더 */}
-        <AppHeader />
+        {header ? header : <AppHeader />}
 
         {/* 페이지 컨텐츠 영역 */}
         <Content
