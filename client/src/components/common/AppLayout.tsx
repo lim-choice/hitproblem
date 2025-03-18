@@ -16,9 +16,15 @@ interface AppLayoutProps {
   title: string;
   children: React.ReactNode;
   header?: React.ReactNode;
+  footer?: React.ReactNode;
 }
 
-const AppLayout: React.FC<AppLayoutProps> = ({ title, children, header }) => {
+const AppLayout: React.FC<AppLayoutProps> = ({
+  title,
+  children,
+  header,
+  footer,
+}) => {
   const { theme } = useThemeStore(); //  Zustand에서 테마 관리
   const { isBugModalOpen, toggleBugModal } = useUIStore(); //  Zustand에서 UI 관리
 
@@ -58,7 +64,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({ title, children, header }) => {
         </Content>
 
         {/* 공통 푸터 */}
-        <AppFooter />
+        {footer ? footer : <AppFooter />}
 
         {/* 버그 신고 모달 */}
         <BugReportModal open={isBugModalOpen} onClose={toggleBugModal} />

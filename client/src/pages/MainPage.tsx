@@ -1,15 +1,18 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Button, Modal } from "antd";
+import { Button, Card, Col, Modal, Row } from "antd";
 import AppLayout from "../components/common/AppLayout";
+import MainHeader from "../components/main/MainHeader";
 
 export default function MainPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const navigate = useNavigate();
 
   return (
-    <AppLayout title="테스트">
-      <div>
+    <AppLayout title="테스트" header={<MainHeader />} footer={<></>}>
+      <div></div>
+
+      {/* <div>
         <h1>SQL 문제 풀어보자</h1>
         <Button type="primary" onClick={() => setIsModalOpen(true)}>
           랜덤 문제 풀기
@@ -31,7 +34,7 @@ export default function MainPage() {
         >
           <p>이곳에 랜덤 문제를 표시합니다.</p>
         </Modal>
-      </div>
+      </div> */}
     </AppLayout>
   );
 }
