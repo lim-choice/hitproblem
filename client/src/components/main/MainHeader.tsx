@@ -63,10 +63,10 @@ const MainHeader: React.FC = () => {
         // style={{ flex: 1, justifyContent: "flex-end" }}
       >
         <Menu.Item key="exam">
-          <Link to="/examlist">시험 목록 보기</Link>
+          <Link to="/test">시험 목록 보기</Link>
         </Menu.Item>
         <Menu.Item key="stats">
-          <Link to="/statistics">통계</Link>
+          <Link to="/testStatistics">통계</Link>
         </Menu.Item>
         <Menu.Item key="mypage">
           <Link to="/mypage">마이페이지</Link>
