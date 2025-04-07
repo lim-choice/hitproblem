@@ -43,7 +43,7 @@ const MainHeader: React.FC = () => {
   };
 
   return (
-    <Header style={{ background: "#fff" }}>
+    <Header style={{ background: "#fff", fontWeight: 700, fontSize: "16px" }}>
       <div
         style={{
           maxWidth: 1200,
