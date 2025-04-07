@@ -36,14 +36,7 @@ export default function MainPage() {
     <AppLayout title="메인 페이지" header={<MainHeader />} footer={<></>}>
       {/* 상단 Carousel */}
       <MainCarousel />
-
-      <div style={{ textAlign: "center", marginBottom: 48 }}>
-        <Title level={2}>문제 해결, 지금 시작하세요</Title>
-        <Paragraph type="secondary">
-          원하는 메뉴를 선택해 문제를 풀어보세요.
-        </Paragraph>
-      </div>
-
+      <div style={{ height: 48 }} />
       <Row gutter={[32, 32]} justify="center">
         <Col xs={24} sm={12} md={8}>
           <Card
