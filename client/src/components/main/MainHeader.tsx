@@ -43,35 +43,34 @@ const MainHeader: React.FC = () => {
   };
 
   return (
-    <Header
-      style={{
-        background: "#fff",
-        display: "flex", // flex 레이아웃 적용
-        alignItems: "center", // 수직 가운데 정렬
-      }}
-    >
-      {/* 로고 배치 (왼쪽) */}
-      <div style={{ marginRight: 24 }}>
-        <CircleLogo />
-      </div>
-
-      {/* 상단 수평 메뉴 */}
-      <Menu
-        mode="horizontal"
-        defaultSelectedKeys={["exam"]}
-        // 메뉴가 남는 공간을 차지하고 오른쪽으로 정렬하고 싶으면 아래처럼 flex 속성 활용 가능
-        // style={{ flex: 1, justifyContent: "flex-end" }}
+    <Header style={{ background: "#fff" }}>
+      <div
+        style={{
+          maxWidth: 1200,
+          margin: "0 auto",
+          width: "100%",
+          display: "flex",
+          alignItems: "center",
+        }}
       >
-        <Menu.Item key="exam">
-          <Link to="/test">시험 목록 보기</Link>
-        </Menu.Item>
-        <Menu.Item key="stats">
-          <Link to="/testStatistics">통계</Link>
-        </Menu.Item>
-        <Menu.Item key="mypage">
-          <Link to="/mypage">마이페이지</Link>
-        </Menu.Item>
-      </Menu>
+        {/* 로고 */}
+        <div style={{ marginRight: 24 }}>
+          <CircleLogo />
+        </div>
+
+        {/* 메뉴 */}
+        <Menu mode="horizontal">
+          <Menu.Item key="exam">
+            <Link to="/test">시험 목록 보기</Link>
+          </Menu.Item>
+          <Menu.Item key="stats">
+            <Link to="/testStatistics">통계</Link>
+          </Menu.Item>
+          <Menu.Item key="mypage">
+            <Link to="/mypage">마이페이지</Link>
+          </Menu.Item>
+        </Menu>
+      </div>
     </Header>
   );
 };
