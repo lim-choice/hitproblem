@@ -3,11 +3,7 @@
 HitProblem은 TypeScript + Vite + Ant Design을 사용한 프론트엔드와 Express.js 기반의 백엔드로 구성된 프로젝트입니다.
 로그인/회원가입 기능 및 주어진 문제에 따른 답안을 작성할 수 있는 기능 제공 및 통계, 내역 조회를 목표로 구현중에 있습니다.
 
-<video width="600" controls>
-  <source src="https://youtu.be/m3LE12SQr7s" type="video/mp4">
-  Your browser does not support the video tag.
-</video>
-
+[![영상 미리보기](https://img.youtube.com/vi/m3LE12SQr7s/0.jpg)](https://youtu.be/m3LE12SQr7s)
 
 ## 기술 스택
 
