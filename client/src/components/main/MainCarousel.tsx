@@ -1,6 +1,7 @@
+import arrowLeft from "@/assets/button-arrow.svg";
 import { Carousel } from "antd";
 import { motion } from "framer-motion";
-import React, { useRef, useState } from "react";
+import { useRef, useState } from "react";
 
 const slideContents = [
   {
@@ -19,14 +20,7 @@ const slideContents = [
   },
 ];
 
-const BannerSlide = ({
-  active,
-  title,
-  subtitle,
-  buttonText,
-  background,
-  buttonStyle,
-}: any) => (
+const BannerSlide = ({ active, title, subtitle, buttonText, background, buttonStyle }: any) => (
   <div
     style={{
       height: 400,
@@ -132,13 +126,22 @@ const MainCarousel = () => {
           background: "rgba(0,0,0,0.4)",
           color: "#fff",
           border: "none",
-          padding: "8px 12px",
+          padding: "10px 10px",
           borderRadius: "50%",
           fontSize: 18,
           cursor: "pointer",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
         }}
       >
-        ‹
+        <img
+          src={arrowLeft}
+          alt="left-arrow"
+          width={16}
+          height={16}
+          style={{ padding: "0 0 0 1px", transform: "rotate(180deg)" }}
+        />
       </button>
       <button
         onClick={goToNext}
@@ -150,13 +153,22 @@ const MainCarousel = () => {
           background: "rgba(0,0,0,0.4)",
           color: "#fff",
           border: "none",
-          padding: "8px 12px",
+          padding: "10px 10px",
           borderRadius: "50%",
           fontSize: 18,
           cursor: "pointer",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
         }}
       >
-        ›
+        <img
+          src={arrowLeft}
+          alt="right-arrow"
+          width={16}
+          height={16}
+          style={{ padding: "0px 0px 0px 2px" }}
+        />
       </button>
     </div>
   );
