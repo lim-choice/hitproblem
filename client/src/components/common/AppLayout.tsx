@@ -57,7 +57,6 @@ const AppLayout: React.FC<AppLayoutProps> = ({ title, children, header, footer }
         >
           {children}
         </Content>
-        <img src="../../assets/react.svg" alt="arrow" />
 
         {/* 공통 푸터 */}
         {footer ? footer : <AppFooter />}
