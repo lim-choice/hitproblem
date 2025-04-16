@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Alert, Card, Table, Tag } from "antd";
 import axios from "axios";
 import AppLayout from "../components/common/AppLayout";
+import { useParams } from "react-router-dom";
 
 interface ExamStats {
   title: string;
@@ -16,26 +17,27 @@ interface ExamStats {
 
 const TestStatistics = () => {
   const [stats, setStats] = useState<ExamStats | null>(null);
+  const { examSessionId } = useParams<{ examSessionId: string }>();
   const [serverError, setServerError] = useState(false);
 
-  //   useEffect(() => {
-  //     const fetchExamStats = async () => {
-  //       try {
-  //         const response = await axios.get(`/api/exam-stats/${examSessionId}`);
-  //         if (response.data) {
-  //           setStats(response.data);
-  //         }
-  //       } catch (error) {
-  //         console.error("❌ 시험 통계 데이터를 불러오는 중 오류 발생:", error);
-  //       }
-  //     };
+  useEffect(() => {
+    const fetchExamStats = async () => {
+      try {
+        const response = await axios.get(
+          `/api/examStatistics/${examSessionId}`
+        );
+        if (response.data) {
+          setStats(response.data);
+        }
+      } catch (error) {
+        console.error("시험 통계 데이터를 불러오는 중 오류 발생:", error);
+      }
+    };
 
-  //     if (examSessionId) {
-  //       fetchExamStats();
-  //     }
-  //   }, [examSessionId]);
-
-  //   if (!stats) return <p>📊 데이터를 불러오는 중...</p>;
+    if (examSessionId) {
+      fetchExamStats();
+    }
+  }, [examSessionId]);
 
   return (
     <AppLayout title="테스트">

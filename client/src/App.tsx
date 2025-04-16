@@ -7,6 +7,7 @@ import TestPage from "./pages/TestPage";
 import TestCompletionPage from "./pages/TestCompletionPage";
 import { HelmetProvider } from "react-helmet-async";
 import TestStatistics from "./pages/TestStatistics";
+import MyPage from "./pages/MyPage";
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
           <Route path="/test" element={<TestPage />} />
           <Route path="/completion" element={<TestCompletionPage />} />
           <Route path="/testStatistics" element={<TestStatistics />} />
+          <Route path="/mypage" element={<MyPage />} />
         </Routes>
       </BrowserRouter>
     </HelmetProvider>

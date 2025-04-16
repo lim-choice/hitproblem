@@ -5,7 +5,7 @@ import AppLayout from "../components/common/AppLayout";
 import MainHeader from "../components/main/MainHeader";
 import MainCarousel from "../components/main/MainCarousel";
 
-export default function MainPage() {
+const MainPage: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const navigate = useNavigate();
 
@@ -85,4 +85,6 @@ export default function MainPage() {
       </Modal>
     </AppLayout>
   );
-}
+};
+
+export default MainPage;
