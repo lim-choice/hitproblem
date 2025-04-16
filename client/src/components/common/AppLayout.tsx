@@ -1,9 +1,9 @@
+import { ConfigProvider, Layout } from "antd";
 import React from "react";
-import { Layout, ConfigProvider } from "antd";
 import { Helmet } from "react-helmet-async";
 import { SITE_TITLE } from "../../config";
-import AppHeader from "./AppHeader";
 import AppFooter from "./AppFooter";
+import AppHeader from "./AppHeader";
 
 import { useThemeStore } from "../../hooks/useThemeStore";
 import { useUIStore } from "../../hooks/useUIStore";
@@ -19,12 +19,7 @@ interface AppLayoutProps {
   footer?: React.ReactNode;
 }
 
-const AppLayout: React.FC<AppLayoutProps> = ({
-  title,
-  children,
-  header,
-  footer,
-}) => {
+const AppLayout: React.FC<AppLayoutProps> = ({ title, children, header, footer }) => {
   const { theme } = useThemeStore(); //  Zustand에서 테마 관리
   const { isBugModalOpen, toggleBugModal } = useUIStore(); //  Zustand에서 UI 관리
 
@@ -62,6 +57,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({
         >
           {children}
         </Content>
+        <img src="../../assets/react.svg" alt="arrow" />
 
         {/* 공통 푸터 */}
         {footer ? footer : <AppFooter />}
